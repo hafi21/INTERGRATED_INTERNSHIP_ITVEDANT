@@ -22,7 +22,7 @@ const orderInclude = {
 
 export const getOrders = async (req: Request, res: Response) => {
   const orders = await prisma.order.findMany({
-    where: req.user?.role === "ADMIN" ? {} : { userId: req.user!.id },
+    where: { userId: req.user!.id },
     include: orderInclude,
     orderBy: {
       createdAt: "desc",
@@ -68,52 +68,45 @@ export const createOrder = async (req: Request, res: Response) => {
   const shippingFee = subtotal >= 500 ? 0 : 25;
   const totalAmount = roundCurrency(subtotal + shippingFee);
 
-  const order = await prisma.$transaction(
-    async (tx) => {
-      const createdOrder = await tx.order.create({
+  const createOrderOperation = prisma.order.create({
+    data: {
+      userId: req.user!.id,
+      orderNumber: createOrderNumber(),
+      shippingAddress: req.body.shippingAddress,
+      subtotal,
+      shippingFee,
+      totalAmount,
+      orderItems: {
+        create: cartItems.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          unitPrice: item.product.price,
+          lineTotal: roundCurrency(decimalToNumber(item.product.price) * item.quantity),
+        })),
+      },
+    },
+    include: orderInclude,
+  });
+
+  const transactionSteps = [
+    createOrderOperation,
+    ...cartItems.map((item) =>
+      prisma.product.update({
+        where: { id: item.productId },
         data: {
-          userId: req.user!.id,
-          orderNumber: createOrderNumber(),
-          shippingAddress: req.body.shippingAddress,
-          subtotal,
-          shippingFee,
-          totalAmount,
-          orderItems: {
-            create: cartItems.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              unitPrice: item.product.price,
-              lineTotal: roundCurrency(decimalToNumber(item.product.price) * item.quantity),
-            })),
+          inventory: {
+            decrement: item.quantity,
           },
         },
-        include: orderInclude,
-      });
+      }),
+    ),
+    prisma.cartItem.deleteMany({
+      where: { userId: req.user!.id },
+    }),
+  ];
 
-      await Promise.all(
-        cartItems.map((item) =>
-          tx.product.update({
-            where: { id: item.productId },
-            data: {
-              inventory: {
-                decrement: item.quantity,
-              },
-            },
-          }),
-        ),
-      );
-
-      await tx.cartItem.deleteMany({
-        where: { userId: req.user!.id },
-      });
-
-      return createdOrder;
-    },
-    {
-      maxWait: 20_000,
-      timeout: 20_000,
-    },
-  );
+  const transactionResults = await prisma.$transaction(transactionSteps);
+  const order = transactionResults[0] as Awaited<typeof createOrderOperation>;
 
   res.status(StatusCodes.CREATED).json({
     message: "Order placed successfully",

@@ -1,7 +1,9 @@
+import axios from "axios";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { CartSummary } from "../components/cart/cart-summary";
 import { Button } from "../components/shared/button";
 import { Card } from "../components/shared/card";
@@ -12,6 +14,7 @@ import { orderService } from "../services/orders";
 
 export const CartPage = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [shippingAddress, setShippingAddress] = useState(
     "24 Meridian Avenue, Bengaluru, Karnataka 560001",
   );
@@ -46,8 +49,16 @@ export const CartPage = () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       toast.success("Order placed successfully");
+      navigate("/orders");
     },
-    onError: () => toast.error("Checkout failed. Verify your cart and address."),
+    onError: (error) => {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message ?? "Checkout failed");
+        return;
+      }
+
+      toast.error("Checkout failed");
+    },
   });
 
   if (isLoading) {

@@ -22,11 +22,11 @@ const orderInclude = {
   payment: true,
 } as const;
 
-const getAccessibleOrder = async (orderId: number, userId: number, isAdmin: boolean) => {
+const getAccessibleOrder = async (orderId: number, userId: number) => {
   const order = await prisma.order.findFirst({
     where: {
       id: orderId,
-      ...(isAdmin ? {} : { userId }),
+      userId,
     },
     include: orderInclude,
   });
@@ -42,7 +42,6 @@ export const createRazorpayOrder = async (req: Request, res: Response) => {
   const order = await getAccessibleOrder(
     req.body.orderId,
     req.user!.id,
-    req.user?.role === "ADMIN",
   );
 
   if (order.payment?.status === PaymentStatus.SUCCESS || order.status === OrderStatus.PAID) {
@@ -76,7 +75,6 @@ export const verifyRazorpayPayment = async (req: Request, res: Response) => {
   const order = await getAccessibleOrder(
     req.body.orderId,
     req.user!.id,
-    req.user?.role === "ADMIN",
   );
 
   if (order.payment?.status === PaymentStatus.SUCCESS || order.status === OrderStatus.PAID) {
@@ -93,37 +91,35 @@ export const verifyRazorpayPayment = async (req: Request, res: Response) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, "Payment signature verification failed");
   }
 
-  const updatedOrder = await prisma.$transaction(async (tx) => {
-    if (order.payment) {
-      await tx.payment.update({
-        where: { orderId: order.id },
-        data: {
-          provider: "RAZORPAY",
-          transactionRef: req.body.razorpayPaymentId,
-          amount: decimalToNumber(order.totalAmount),
-          status: PaymentStatus.SUCCESS,
-        },
-      });
-    } else {
-      await tx.payment.create({
-        data: {
-          orderId: order.id,
-          provider: "RAZORPAY",
-          transactionRef: req.body.razorpayPaymentId,
-          amount: decimalToNumber(order.totalAmount),
-          status: PaymentStatus.SUCCESS,
-        },
-      });
-    }
-
-    return tx.order.update({
-      where: { id: order.id },
-      data: {
-        status: OrderStatus.PAID,
-      },
-      include: orderInclude,
-    });
+  const updateOrderOperation = prisma.order.update({
+    where: { id: order.id },
+    data: {
+      status: OrderStatus.PAID,
+    },
+    include: orderInclude,
   });
+
+  const transactionResults = await prisma.$transaction([
+    prisma.payment.upsert({
+      where: { orderId: order.id },
+      update: {
+        provider: "RAZORPAY",
+        transactionRef: req.body.razorpayPaymentId,
+        amount: decimalToNumber(order.totalAmount),
+        status: PaymentStatus.SUCCESS,
+      },
+      create: {
+        orderId: order.id,
+        provider: "RAZORPAY",
+        transactionRef: req.body.razorpayPaymentId,
+        amount: decimalToNumber(order.totalAmount),
+        status: PaymentStatus.SUCCESS,
+      },
+    }),
+    updateOrderOperation,
+  ]);
+
+  const updatedOrder = transactionResults[1] as Awaited<typeof updateOrderOperation>;
 
   res.status(StatusCodes.OK).json({
     message: "Payment verified successfully",

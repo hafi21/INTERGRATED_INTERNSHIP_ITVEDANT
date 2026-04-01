@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import toast from "react-hot-toast";
 import { OrderCard } from "../components/orders/order-card";
 import { EmptyState } from "../components/shared/empty-state";
@@ -50,8 +51,11 @@ export const OrdersPage = () => {
       await queryClient.invalidateQueries({ queryKey: ["orders"] });
       toast.success("Payment completed successfully");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Payment could not be completed";
+      const message = axios.isAxiosError(error)
+        ? (error.response?.data?.message ?? "Payment could not be completed")
+        : error instanceof Error
+          ? error.message
+          : "Payment could not be completed";
       toast.error(message);
     } finally {
       setActiveOrderId(null);
