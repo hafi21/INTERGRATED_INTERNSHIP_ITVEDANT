@@ -138,7 +138,7 @@ export const CartPage = () => {
             <select
               value={paymentProvider}
               onChange={(event) => setPaymentProvider(event.target.value as "RAZORPAY" | "COD")}
-              className="w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 outline-none focus:border-brand-300"
+              className="form-select bg-white/85"
             >
               <option value="RAZORPAY">Razorpay</option>
               <option value="COD">Cash on Delivery</option>

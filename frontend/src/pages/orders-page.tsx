@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { OrderCard } from "../components/orders/order-card";
+import { ConfirmModal } from "../components/shared/confirm-modal";
 import { EmptyState } from "../components/shared/empty-state";
 import { SectionHeading } from "../components/shared/section-heading";
 import { useAuth } from "../hooks/use-auth";
@@ -15,9 +16,29 @@ export const OrdersPage = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [activeOrderId, setActiveOrderId] = useState<number | null>(null);
+  const [cancelOrderId, setCancelOrderId] = useState<number | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["orders"],
     queryFn: () => orderService.list(),
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: (orderId: number) => orderService.cancel(orderId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast.success("Order cancelled successfully");
+      setCancelTarget(null);
+    },
+    onError: (error) => {
+      const message = axios.isAxiosError(error)
+        ? (error.response?.data?.message ?? "Could not cancel order")
+        : "Could not cancel order";
+      toast.error(message);
+    },
+    onSettled: () => {
+      setCancelOrderId(null);
+    },
   });
 
   const handlePay = async (order: Order) => {
@@ -78,7 +99,9 @@ export const OrdersPage = () => {
               key={order.id}
               order={order}
               onPay={() => void handlePay(order)}
+              onCancel={() => setCancelTarget(order)}
               loading={activeOrderId === order.id}
+              cancelLoading={cancelOrderId === order.id}
             />
           ))
         ) : (
@@ -88,6 +111,21 @@ export const OrdersPage = () => {
           />
         )}
       </div>
+      <ConfirmModal
+        open={Boolean(cancelTarget)}
+        title="Cancel this order?"
+        description="This will mark the order as cancelled and restore the reserved product quantity back into stock."
+        onClose={() => setCancelTarget(null)}
+        onConfirm={() => {
+          if (!cancelTarget) {
+            return;
+          }
+
+          setCancelOrderId(cancelTarget.id);
+          cancelMutation.mutate(cancelTarget.id);
+        }}
+        confirmLabel="Cancel Order"
+      />
     </main>
   );
 };

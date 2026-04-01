@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CreditCard } from "lucide-react";
+import { CreditCard, XCircle } from "lucide-react";
 import type { Order } from "../../types";
 import { formatCurrency, formatDate } from "../../lib/format";
 import { Button } from "../shared/button";
@@ -8,11 +8,15 @@ import { Card } from "../shared/card";
 export const OrderCard = ({
   order,
   onPay,
+  onCancel,
   loading,
+  cancelLoading,
 }: {
   order: Order;
   onPay: () => void;
+  onCancel: () => void;
   loading: boolean;
+  cancelLoading: boolean;
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -62,14 +66,29 @@ export const OrderCard = ({
               <span>{formatCurrency(order.totalAmount)}</span>
             </div>
           </div>
-          {!order.payment ? (
-            <Button onClick={onPay} disabled={loading} className="w-full">
-              <CreditCard className="h-4 w-4" />
-              {loading ? "Opening..." : "Pay with Razorpay"}
-            </Button>
+          {!order.payment && order.status !== "CANCELLED" ? (
+            <div className="space-y-3">
+              <Button onClick={onPay} disabled={loading || cancelLoading} className="w-full">
+                <CreditCard className="h-4 w-4" />
+                {loading ? "Opening..." : "Pay with Razorpay"}
+              </Button>
+              {order.status === "PENDING" ? (
+                <Button
+                  variant="ghost"
+                  onClick={onCancel}
+                  disabled={loading || cancelLoading}
+                  className="w-full"
+                >
+                  <XCircle className="h-4 w-4" />
+                  {cancelLoading ? "Cancelling..." : "Cancel Order"}
+                </Button>
+              ) : null}
+            </div>
           ) : (
             <div className="rounded-2xl bg-white/80 p-4 text-sm text-slate-600">
-              Paid via {order.payment.provider} with ref {order.payment.transactionRef}
+              {order.status === "CANCELLED"
+                ? "This order has been cancelled."
+                : `Paid via ${order.payment?.provider} with ref ${order.payment?.transactionRef}`}
             </div>
           )}
         </div>

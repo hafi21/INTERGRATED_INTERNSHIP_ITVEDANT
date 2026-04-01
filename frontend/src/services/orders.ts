@@ -10,4 +10,8 @@ export const orderService = {
     const { data } = await api.post<{ order: Order }>("/orders", payload);
     return data.order;
   },
+  async cancel(orderId: number) {
+    const { data } = await api.patch<{ order: Order }>(`/orders/${orderId}/cancel`);
+    return data.order;
+  },
 };

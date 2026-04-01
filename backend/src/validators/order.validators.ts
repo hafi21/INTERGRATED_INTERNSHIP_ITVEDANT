@@ -8,3 +8,11 @@ export const createOrderSchema = z.object({
   params: z.object({}).default({}),
   query: z.object({}).default({}),
 });
+
+export const cancelOrderSchema = z.object({
+  body: z.object({}).default({}),
+  params: z.object({
+    id: z.coerce.number().int().positive(),
+  }),
+  query: z.object({}).default({}),
+});

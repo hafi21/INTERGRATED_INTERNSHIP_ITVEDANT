@@ -114,3 +114,60 @@ export const createOrder = async (req: Request, res: Response) => {
     order: serializeOrder(order),
   });
 };
+
+export const cancelOrder = async (req: Request, res: Response) => {
+  const order = await prisma.order.findFirst({
+    where: {
+      id: Number(req.params.id),
+      userId: req.user!.id,
+    },
+    include: orderInclude,
+  });
+
+  if (!order) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Order not found");
+  }
+
+  if (order.status === "CANCELLED") {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Order is already cancelled");
+  }
+
+  if (order.status === "PAID" || order.status === "FULFILLED") {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Paid or fulfilled orders cannot be cancelled");
+  }
+
+  if (order.payment?.status === "SUCCESS") {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Paid orders cannot be cancelled");
+  }
+
+  const updateOrderOperation = prisma.order.update({
+    where: { id: order.id },
+    data: {
+      status: "CANCELLED",
+    },
+    include: orderInclude,
+  });
+
+  const transactionResults = await prisma.$transaction([
+    ...order.orderItems.map((item) =>
+      prisma.product.update({
+        where: { id: item.product.id },
+        data: {
+          inventory: {
+            increment: item.quantity,
+          },
+        },
+      }),
+    ),
+    updateOrderOperation,
+  ]);
+
+  const updatedOrder = transactionResults[transactionResults.length - 1] as Awaited<
+    typeof updateOrderOperation
+  >;
+
+  res.status(StatusCodes.OK).json({
+    message: "Order cancelled successfully",
+    order: serializeOrder(updatedOrder),
+  });
+};

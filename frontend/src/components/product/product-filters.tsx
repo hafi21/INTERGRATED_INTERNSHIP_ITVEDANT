@@ -23,7 +23,7 @@ export const ProductFilters = ({
     <select
       value={categoryId ?? ""}
       onChange={(event) => onCategoryChange(event.target.value ? Number(event.target.value) : null)}
-      className="rounded-2xl border border-white/70 bg-white/80 px-4 py-3 text-sm outline-none focus:border-brand-300"
+      className="form-select bg-white/80"
     >
       <option value="">All categories</option>
       {categories.map((category) => (
@@ -34,4 +34,3 @@ export const ProductFilters = ({
     </select>
   </div>
 );
-
