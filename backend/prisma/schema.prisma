@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  INACTIVE
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FULFILLED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  fullName     String     @map("full_name")
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  role         UserRole   @default(CUSTOMER)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  cartItems    CartItem[]
+  orders       Order[]
+  wishlist     Wishlist[]
+
+  @@map("users")
+}
+
+model Category {
+  categoryId   Int       @id @default(autoincrement()) @map("category_id")
+  categoryName String    @db.VarChar(100) @map("category_name")
+  description  String?   @db.VarChar(300)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  status       Boolean   @default(true)
+  products     Product[]
+
+  @@index([status], map: "idx_categories_status")
+  @@map("categories")
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(140)
+  slug        String        @unique
+  description String        @db.VarChar(500)
+  price       Decimal       @db.Decimal(10, 2)
+  inventory   Int
+  imageUrl    String        @db.VarChar(300) @map("image_url")
+  status      ProductStatus @default(ACTIVE)
+  featured    Boolean       @default(false)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  categoryId  Int           @map("category_id")
+  category    Category      @relation(fields: [categoryId], references: [categoryId])
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  wishlist    Wishlist[]
+
+  @@index([categoryId], map: "idx_products_category_id")
+  @@index([status], map: "idx_products_status")
+  @@map("products")
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  quantity  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  userId    Int      @map("user_id")
+  productId Int      @map("product_id")
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId], map: "cart_user_product_unique")
+  @@index([userId], map: "idx_cart_items_user_id")
+  @@map("cart_items")
+}
+
+model Order {
+  id              Int          @id @default(autoincrement())
+  orderNumber     String       @unique @map("order_number")
+  status          OrderStatus  @default(PENDING)
+  subtotal        Decimal      @db.Decimal(10, 2)
+  shippingFee     Decimal      @db.Decimal(10, 2) @map("shipping_fee")
+  totalAmount     Decimal      @db.Decimal(10, 2) @map("total_amount")
+  shippingAddress String       @db.VarChar(255) @map("shipping_address")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  userId          Int          @map("user_id")
+  user            User         @relation(fields: [userId], references: [id])
+  orderItems      OrderItem[]
+  payment         Payment?
+
+  @@index([userId], map: "idx_orders_user_id")
+  @@map("orders")
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  quantity   Int
+  unitPrice  Decimal  @db.Decimal(10, 2) @map("unit_price")
+  lineTotal  Decimal  @db.Decimal(10, 2) @map("line_total")
+  orderId    Int      @map("order_id")
+  productId  Int      @map("product_id")
+  order      Order    @relation(fields: [orderId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+
+  @@index([orderId], map: "idx_order_items_order_id")
+  @@map("order_items")
+}
+
+model Payment {
+  id             Int           @id @default(autoincrement())
+  provider       String        @db.VarChar(80)
+  transactionRef String        @unique @map("transaction_ref")
+  amount         Decimal       @db.Decimal(10, 2)
+  status         PaymentStatus @default(PENDING)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  orderId        Int           @unique @map("order_id")
+  order          Order         @relation(fields: [orderId], references: [id])
+
+  @@map("payments")
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    Int      @map("user_id")
+  productId Int      @map("product_id")
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId], map: "wishlist_user_product_unique")
+  @@map("wishlist")
+}

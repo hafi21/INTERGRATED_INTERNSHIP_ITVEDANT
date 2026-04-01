@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family:
+    "Sora",
+    "Segoe UI",
+    sans-serif;
+  color: #111111;
+  background: linear-gradient(180deg, #fffdfd 0%, #ffffff 55%, #f7f7f8 100%);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #fffdfd 0%, #ffffff 55%, #f7f7f8 100%);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(225, 29, 46, 0.18);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(225, 29, 46, 0.7), rgba(125, 21, 33, 0.8));
+  border-radius: 999px;
+}
+
+@layer components {
+  .glass-panel {
+    @apply border border-slate-200/70 bg-white/90 backdrop-blur-md shadow-soft;
+  }
+
+  .section-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .animated-border {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .animated-border::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(120deg, transparent, rgba(255, 59, 59, 0.22), transparent);
+    transform: translateX(-100%);
+    animation: sweep 6s linear infinite;
+  }
+}
+
+@keyframes sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}

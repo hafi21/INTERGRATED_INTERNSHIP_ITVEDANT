@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: aureon-commerce-api
+    runtime: node
+    rootDir: .
+    plan: free
+    buildCommand: npm ci && npm run prisma:generate --workspace backend && npm run build --workspace backend
+    startCommand: npm run start --workspace backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: CLIENT_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+

@@ -1,0 +1,79 @@
+import { motion } from "framer-motion";
+import { CreditCard } from "lucide-react";
+import type { Order } from "../../types";
+import { formatCurrency, formatDate } from "../../lib/format";
+import { Button } from "../shared/button";
+import { Card } from "../shared/card";
+
+export const OrderCard = ({
+  order,
+  onPay,
+  loading,
+}: {
+  order: Order;
+  onPay: () => void;
+  loading: boolean;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, amount: 0.2 }}
+    transition={{ duration: 0.45 }}
+  >
+    <Card className="space-y-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm uppercase tracking-[0.3em] text-brand-600">{order.orderNumber}</p>
+          <h3 className="mt-2 text-xl font-semibold text-ink">{formatDate(order.createdAt)}</h3>
+        </div>
+        <div className="rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700">
+          {order.status}
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-3">
+          {order.items.map((item) => (
+            <div key={item.id} className="flex items-center gap-3 rounded-2xl bg-white/70 p-3">
+              <img src={item.product.imageUrl} alt={item.product.name} className="h-14 w-14 rounded-2xl object-cover" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-ink">{item.product.name}</p>
+                <p className="text-sm text-slate-500">
+                  {item.quantity} x {formatCurrency(item.unitPrice)}
+                </p>
+              </div>
+              <span className="text-sm font-semibold text-ink">{formatCurrency(item.lineTotal)}</span>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-3 rounded-[28px] bg-brand-50/70 p-5">
+          <p className="text-sm text-slate-600">Ship to</p>
+          <p className="font-medium text-ink">{order.shippingAddress}</p>
+          <div className="grid gap-2 text-sm text-slate-600">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>{formatCurrency(order.subtotal)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Shipping</span>
+              <span>{formatCurrency(order.shippingFee)}</span>
+            </div>
+            <div className="flex justify-between border-t border-brand-100 pt-2 text-base font-semibold text-ink">
+              <span>Total</span>
+              <span>{formatCurrency(order.totalAmount)}</span>
+            </div>
+          </div>
+          {!order.payment ? (
+            <Button onClick={onPay} disabled={loading} className="w-full">
+              <CreditCard className="h-4 w-4" />
+              {loading ? "Opening..." : "Pay with Razorpay"}
+            </Button>
+          ) : (
+            <div className="rounded-2xl bg-white/80 p-4 text-sm text-slate-600">
+              Paid via {order.payment.provider} with ref {order.payment.transactionRef}
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
+  </motion.div>
+);
