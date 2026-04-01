@@ -151,7 +151,7 @@ const products: SeedProduct[] = [
       price: 52.0,
       inventory: 33,
       imageUrl:
-        "https://images.unsplash.com/photo-1517503732587-97d2103a96ea?auto=format&fit=crop&w=900&q=80",
+        "https://picsum.photos/seed/heritage-desk-mat/900/900",
       featured: false,
     },
     {
@@ -228,7 +228,7 @@ const products: SeedProduct[] = [
       price: 28.0,
       inventory: 44,
       imageUrl:
-        "https://images.unsplash.com/photo-1616627459052-4f3bbf2c5535?auto=format&fit=crop&w=900&q=80",
+        "https://picsum.photos/seed/reserve-key-holder/900/900",
       featured: false,
     },
     {
@@ -384,7 +384,7 @@ const products: SeedProduct[] = [
       price: 149.0,
       inventory: 17,
       imageUrl:
-        "https://images.unsplash.com/photo-1587614382346-ac88c8d03f57?auto=format&fit=crop&w=900&q=80",
+        "https://picsum.photos/seed/atlas-4k-display-hub/900/900",
       featured: false,
     },
     {
@@ -406,7 +406,7 @@ const products: SeedProduct[] = [
       price: 74.0,
       inventory: 29,
       imageUrl:
-        "https://images.unsplash.com/photo-1517336714739-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
+        "https://picsum.photos/seed/aero-cooling-pad/900/900",
       featured: false,
     },
     {
@@ -417,7 +417,7 @@ const products: SeedProduct[] = [
       price: 96.0,
       inventory: 26,
       imageUrl:
-        "https://images.unsplash.com/photo-1587614382418-bf6f2873f4b4?auto=format&fit=crop&w=900&q=80",
+        "https://picsum.photos/seed/prism-stylus-pen/900/900",
       featured: false,
     },
     {
@@ -461,7 +461,7 @@ const products: SeedProduct[] = [
       price: 64.0,
       inventory: 33,
       imageUrl:
-        "https://images.unsplash.com/photo-1609592806787-3d9f3e7ad3d1?auto=format&fit=crop&w=900&q=80",
+        "https://picsum.photos/seed/frame-magnetic-battery/900/900",
       featured: false,
     },
     {
