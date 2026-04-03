@@ -30,6 +30,7 @@ CREATE TABLE `products` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(140) NOT NULL,
     `slug` VARCHAR(191) NOT NULL,
+    `sku` VARCHAR(40) NOT NULL,
     `description` VARCHAR(500) NOT NULL,
     `price` DECIMAL(10, 2) NOT NULL,
     `inventory` INTEGER NOT NULL,
@@ -41,6 +42,7 @@ CREATE TABLE `products` (
     `category_id` INTEGER NOT NULL,
 
     UNIQUE INDEX `products_slug_key`(`slug`),
+    UNIQUE INDEX `products_sku_key`(`sku`),
     INDEX `idx_products_category_id`(`category_id`),
     INDEX `idx_products_status`(`status`),
     PRIMARY KEY (`id`)

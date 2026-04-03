@@ -11,6 +11,11 @@ type OrderEntity = {
   createdAt: Date;
   updatedAt: Date;
   userId: number;
+  user?: {
+    id: number;
+    fullName: string;
+    email: string;
+  };
   orderItems: Array<{
     id: number;
     quantity: number;
@@ -43,6 +48,13 @@ export const serializeOrder = (order: OrderEntity) => ({
   createdAt: order.createdAt,
   updatedAt: order.updatedAt,
   userId: order.userId,
+  customer: order.user
+    ? {
+        id: order.user.id,
+        fullName: order.user.fullName,
+        email: order.user.email,
+      }
+    : null,
   items: order.orderItems.map((item) => ({
     id: item.id,
     quantity: item.quantity,

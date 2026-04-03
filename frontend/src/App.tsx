@@ -21,8 +21,14 @@ const CartPage = lazy(() => import("./pages/cart-page").then((module) => ({ defa
 const OrdersPage = lazy(() =>
   import("./pages/orders-page").then((module) => ({ default: module.OrdersPage })),
 );
+const AdminOrdersPage = lazy(() =>
+  import("./pages/admin-orders-page").then((module) => ({ default: module.AdminOrdersPage })),
+);
 const AdminCategoriesPage = lazy(() =>
   import("./pages/admin-categories-page").then((module) => ({ default: module.AdminCategoriesPage })),
+);
+const AdminProductsPage = lazy(() =>
+  import("./pages/admin-products-page").then((module) => ({ default: module.AdminProductsPage })),
 );
 const NotFoundPage = lazy(() =>
   import("./pages/not-found-page").then((module) => ({ default: module.NotFoundPage })),
@@ -110,11 +116,31 @@ export default function App() {
               }
             />
             <Route
+              path="/admin/orders"
+              element={
+                <ProtectedRoute adminOnly>
+                  <PageTransition>
+                    <AdminOrdersPage />
+                  </PageTransition>
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/categories"
               element={
                 <ProtectedRoute adminOnly>
                   <PageTransition>
                     <AdminCategoriesPage />
+                  </PageTransition>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/products"
+              element={
+                <ProtectedRoute adminOnly>
+                  <PageTransition>
+                    <AdminProductsPage />
                   </PageTransition>
                 </ProtectedRoute>
               }

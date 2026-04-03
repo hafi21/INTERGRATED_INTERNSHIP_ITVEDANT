@@ -6,6 +6,7 @@ import {
   updateCategory,
 } from "../controllers/category.controller.js";
 import { authenticate } from "../middleware/authenticate.js";
+import { authenticateOptional } from "../middleware/authenticate-optional.js";
 import { requireAdmin } from "../middleware/require-admin.js";
 import { validate } from "../middleware/validate.js";
 import { asyncHandler } from "../utils/async-handler.js";
@@ -17,7 +18,7 @@ import {
 
 const router = Router();
 
-router.get("/", asyncHandler(getCategories));
+router.get("/", authenticateOptional, asyncHandler(getCategories));
 router.post(
   "/",
   authenticate,
@@ -41,4 +42,3 @@ router.delete(
 );
 
 export default router;
-

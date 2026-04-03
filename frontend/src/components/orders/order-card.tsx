@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { CreditCard, XCircle } from "lucide-react";
 import type { Order } from "../../types";
 import { formatCurrency, formatDate } from "../../lib/format";
+import { getOrderStatusLabel, getOrderStatusTone } from "../../lib/order-status";
 import { Button } from "../shared/button";
 import { Card } from "../shared/card";
 
@@ -30,8 +31,10 @@ export const OrderCard = ({
           <p className="text-sm uppercase tracking-[0.3em] text-brand-600">{order.orderNumber}</p>
           <h3 className="mt-2 text-xl font-semibold text-ink">{formatDate(order.createdAt)}</h3>
         </div>
-        <div className="rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700">
-          {order.status}
+        <div
+          className={`rounded-full px-4 py-2 text-sm font-semibold ${getOrderStatusTone(order.status)}`}
+        >
+          {getOrderStatusLabel(order.status)}
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">

@@ -19,6 +19,7 @@ type SeedCategory = {
 type SeedProduct = {
   name: string;
   slug: string;
+  sku: string;
   description: string;
   price: number;
   inventory: number;
@@ -45,10 +46,15 @@ const categories: SeedCategory[] = [
 
 const withCategory = (
   categoryName: string,
-  items: Array<Omit<SeedProduct, "status" | "categoryName">>,
+  items: Array<Omit<SeedProduct, "sku" | "status" | "categoryName">>,
 ): SeedProduct[] =>
-  items.map((item) => ({
+  items.map((item, index) => ({
     ...item,
+    sku: `${categoryName
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase()}-${String(index + 1).padStart(3, "0")}`,
     status: ProductStatus.ACTIVE,
     categoryName,
   }));
@@ -784,6 +790,7 @@ async function main() {
       update: {
         name: product.name,
         description: product.description,
+        sku: product.sku,
         price: product.price,
         inventory: product.inventory,
         imageUrl: product.imageUrl,
@@ -794,6 +801,7 @@ async function main() {
       create: {
         name: product.name,
         slug: product.slug,
+        sku: product.sku,
         description: product.description,
         price: product.price,
         inventory: product.inventory,

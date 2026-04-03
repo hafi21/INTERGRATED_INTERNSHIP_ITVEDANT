@@ -83,9 +83,17 @@ export const HomePage = () => {
                 </Button>
               </Link>
               {user?.role === "ADMIN" ? (
-                <Link to="/admin/categories">
-                  <Button variant="ghost">Manage categories</Button>
-                </Link>
+                <div className="flex flex-wrap gap-4">
+                  <Link to="/admin/orders">
+                    <Button variant="ghost">Manage orders</Button>
+                  </Link>
+                  <Link to="/admin/categories">
+                    <Button variant="ghost">Manage categories</Button>
+                  </Link>
+                  <Link to="/admin/products">
+                    <Button variant="ghost">Manage products</Button>
+                  </Link>
+                </div>
               ) : null}
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-3">

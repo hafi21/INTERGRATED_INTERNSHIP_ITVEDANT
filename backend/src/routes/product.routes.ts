@@ -16,11 +16,12 @@ import {
   productListSchema,
   productUpdateSchema,
 } from "../validators/product.validators.js";
+import { authenticateOptional } from "../middleware/authenticate-optional.js";
 
 const router = Router();
 
-router.get("/", validate(productListSchema), asyncHandler(getProducts));
-router.get("/:id", validate(productIdSchema), asyncHandler(getProductById));
+router.get("/", authenticateOptional, validate(productListSchema), asyncHandler(getProducts));
+router.get("/:id", authenticateOptional, validate(productIdSchema), asyncHandler(getProductById));
 router.post(
   "/",
   authenticate,
@@ -44,4 +45,3 @@ router.delete(
 );
 
 export default router;
-

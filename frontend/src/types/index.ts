@@ -27,6 +27,7 @@ export type Product = {
   id: number;
   name: string;
   slug: string;
+  sku: string;
   description: string;
   price: number;
   inventory: number;
@@ -80,6 +81,11 @@ export type Order = {
   createdAt: string;
   updatedAt: string;
   userId: number;
+  customer: {
+    id: number;
+    fullName: string;
+    email: string;
+  } | null;
   items: Array<{
     id: number;
     quantity: number;

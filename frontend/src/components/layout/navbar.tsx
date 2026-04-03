@@ -41,16 +41,38 @@ export const Navbar = () => {
             </NavLink>
           ))}
           {user?.role === "ADMIN" ? (
-            <NavLink
-              to="/admin/categories"
-              className={({ isActive }) =>
-                `rounded-full px-4 py-2 text-sm font-medium transition ${
-                  isActive ? "bg-brand-600 text-white" : "text-slate-600 hover:text-ink"
-                }`
-              }
-            >
-              Categories
-            </NavLink>
+            <>
+              <NavLink
+                to="/admin/orders"
+                className={({ isActive }) =>
+                  `rounded-full px-4 py-2 text-sm font-medium transition ${
+                    isActive ? "bg-brand-600 text-white" : "text-slate-600 hover:text-ink"
+                  }`
+                }
+              >
+                Order Admin
+              </NavLink>
+              <NavLink
+                to="/admin/categories"
+                className={({ isActive }) =>
+                  `rounded-full px-4 py-2 text-sm font-medium transition ${
+                    isActive ? "bg-brand-600 text-white" : "text-slate-600 hover:text-ink"
+                  }`
+                }
+              >
+                Categories
+              </NavLink>
+              <NavLink
+                to="/admin/products"
+                className={({ isActive }) =>
+                  `rounded-full px-4 py-2 text-sm font-medium transition ${
+                    isActive ? "bg-brand-600 text-white" : "text-slate-600 hover:text-ink"
+                  }`
+                }
+              >
+                Products
+              </NavLink>
+            </>
           ) : null}
         </nav>
 

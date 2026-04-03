@@ -4,6 +4,7 @@ type ProductEntity = {
   id: number;
   name: string;
   slug: string;
+  sku: string;
   description: string;
   price: unknown;
   inventory: number;
@@ -23,6 +24,7 @@ export const serializeProduct = (product: ProductEntity) => ({
   id: product.id,
   name: product.name,
   slug: product.slug,
+  sku: product.sku,
   description: product.description,
   price: decimalToNumber(product.price as number),
   inventory: product.inventory,
@@ -34,4 +36,3 @@ export const serializeProduct = (product: ProductEntity) => ({
   categoryId: product.categoryId,
   category: product.category,
 });
-

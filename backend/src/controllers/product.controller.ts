@@ -25,6 +25,7 @@ export const getProducts = async (req: Request, res: Response) => {
         ? [
             { name: { contains: String(req.query.search) } },
             { description: { contains: String(req.query.search) } },
+            { sku: { contains: String(req.query.search).toUpperCase() } },
           ]
         : undefined,
     },
@@ -67,6 +68,8 @@ export const getProductById = async (req: Request, res: Response) => {
 };
 
 export const createProduct = async (req: Request, res: Response) => {
+  const normalizedSku = String(req.body.sku).trim().toUpperCase();
+
   const category = await prisma.category.findFirst({
     where: {
       categoryId: req.body.categoryId,
@@ -82,10 +85,18 @@ export const createProduct = async (req: Request, res: Response) => {
   const existingSlug = await prisma.product.findUnique({
     where: { slug: baseSlug },
   });
+  const existingSku = await prisma.product.findUnique({
+    where: { sku: normalizedSku },
+  });
+
+  if (existingSku) {
+    throw new ApiError(StatusCodes.CONFLICT, "SKU already exists");
+  }
 
   const product = await prisma.product.create({
     data: {
       ...req.body,
+      sku: normalizedSku,
       slug: existingSlug ? `${baseSlug}-${Date.now()}` : baseSlug,
     },
     include: {
@@ -126,10 +137,22 @@ export const updateProduct = async (req: Request, res: Response) => {
     }
   }
 
+  if (req.body.sku) {
+    const normalizedSku = String(req.body.sku).trim().toUpperCase();
+    const existingSku = await prisma.product.findUnique({
+      where: { sku: normalizedSku },
+    });
+
+    if (existingSku && existingSku.id !== product.id) {
+      throw new ApiError(StatusCodes.CONFLICT, "SKU already exists");
+    }
+  }
+
   const updatedProduct = await prisma.product.update({
     where: { id: product.id },
     data: {
       ...req.body,
+      sku: req.body.sku ? String(req.body.sku).trim().toUpperCase() : product.sku,
       slug: req.body.name ? `${slugify(req.body.name)}-${product.id}` : product.slug,
     },
     include: {

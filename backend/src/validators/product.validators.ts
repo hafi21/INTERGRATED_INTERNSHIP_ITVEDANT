@@ -2,13 +2,19 @@ import { z } from "zod";
 
 const productBody = z.object({
   name: z.string().min(3).max(140),
+  sku: z
+    .string()
+    .trim()
+    .min(3)
+    .max(40)
+    .regex(/^[A-Z0-9-]+$/, "SKU can contain only uppercase letters, numbers, and hyphens"),
   description: z.string().min(10).max(500),
   price: z.coerce.number().positive(),
   inventory: z.coerce.number().int().min(0),
   imageUrl: z.string().url(),
   featured: z.coerce.boolean().optional().default(false),
   categoryId: z.coerce.number().int().positive(),
-  status: z.enum(["ACTIVE", "DRAFT", "INACTIVE"]).optional().default("ACTIVE"),
+  status: z.enum(["ACTIVE", "INACTIVE"]).optional().default("ACTIVE"),
 });
 
 export const productCreateSchema = z.object({
@@ -43,4 +49,3 @@ export const productIdSchema = z.object({
   }),
   query: z.object({}).default({}),
 });
-

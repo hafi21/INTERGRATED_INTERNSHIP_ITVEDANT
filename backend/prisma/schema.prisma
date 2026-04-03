@@ -64,6 +64,7 @@ model Product {
   id          Int           @id @default(autoincrement())
   name        String        @db.VarChar(140)
   slug        String        @unique
+  sku         String        @unique @db.VarChar(40)
   description String        @db.VarChar(500)
   price       Decimal       @db.Decimal(10, 2)
   inventory   Int

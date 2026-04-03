@@ -1,3 +1,4 @@
+import { OrderStatus } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import type { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
@@ -6,6 +7,13 @@ import { ApiError } from "../utils/api-error.js";
 import { createOrderNumber, decimalToNumber, roundCurrency } from "../utils/serializers.js";
 
 const orderInclude = {
+  user: {
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+    },
+  },
   orderItems: {
     include: {
       product: {
@@ -20,9 +28,31 @@ const orderInclude = {
   payment: true,
 } as const;
 
+const statusFilterMap: Record<string, OrderStatus> = {
+  PENDING: OrderStatus.PENDING,
+  PAID: OrderStatus.PAID,
+  SHIPPED: OrderStatus.PROCESSING,
+  DELIVERED: OrderStatus.FULFILLED,
+  CANCELLED: OrderStatus.CANCELLED,
+};
+
+const incomingStatusMap: Record<"PENDING" | "SHIPPED" | "DELIVERED", OrderStatus> = {
+  PENDING: OrderStatus.PENDING,
+  SHIPPED: OrderStatus.PROCESSING,
+  DELIVERED: OrderStatus.FULFILLED,
+};
+
 export const getOrders = async (req: Request, res: Response) => {
+  const isAdminScope = req.user!.role === "ADMIN" && req.query.scope === "all";
+  const statusFilter = req.query.status
+    ? statusFilterMap[String(req.query.status)]
+    : undefined;
+
   const orders = await prisma.order.findMany({
-    where: { userId: req.user!.id },
+    where: {
+      userId: isAdminScope ? undefined : req.user!.id,
+      status: statusFilter,
+    },
     include: orderInclude,
     orderBy: {
       createdAt: "desc",
@@ -119,7 +149,7 @@ export const cancelOrder = async (req: Request, res: Response) => {
   const order = await prisma.order.findFirst({
     where: {
       id: Number(req.params.id),
-      userId: req.user!.id,
+      userId: req.user!.role === "ADMIN" ? undefined : req.user!.id,
     },
     include: orderInclude,
   });
@@ -132,8 +162,15 @@ export const cancelOrder = async (req: Request, res: Response) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, "Order is already cancelled");
   }
 
-  if (order.status === "PAID" || order.status === "FULFILLED") {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "Paid or fulfilled orders cannot be cancelled");
+  if (
+    order.status === OrderStatus.PAID ||
+    order.status === OrderStatus.PROCESSING ||
+    order.status === OrderStatus.FULFILLED
+  ) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      "Paid, shipped, or delivered orders cannot be cancelled",
+    );
   }
 
   if (order.payment?.status === "SUCCESS") {
@@ -143,7 +180,7 @@ export const cancelOrder = async (req: Request, res: Response) => {
   const updateOrderOperation = prisma.order.update({
     where: { id: order.id },
     data: {
-      status: "CANCELLED",
+      status: OrderStatus.CANCELLED,
     },
     include: orderInclude,
   });
@@ -168,6 +205,44 @@ export const cancelOrder = async (req: Request, res: Response) => {
 
   res.status(StatusCodes.OK).json({
     message: "Order cancelled successfully",
+    order: serializeOrder(updatedOrder),
+  });
+};
+
+export const updateOrderStatus = async (req: Request, res: Response) => {
+  const order = await prisma.order.findUnique({
+    where: { id: Number(req.params.id) },
+    include: orderInclude,
+  });
+
+  if (!order) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Order not found");
+  }
+
+  if (order.status === OrderStatus.CANCELLED) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Cancelled orders cannot be updated");
+  }
+
+  const nextStatus = incomingStatusMap[req.body.status as keyof typeof incomingStatusMap];
+
+  if (!nextStatus) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Unsupported order status");
+  }
+
+  if (nextStatus === OrderStatus.PENDING && order.payment?.status === "SUCCESS") {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Paid orders cannot be moved back to pending");
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: { id: order.id },
+    data: {
+      status: nextStatus,
+    },
+    include: orderInclude,
+  });
+
+  res.status(StatusCodes.OK).json({
+    message: "Order status updated successfully",
     order: serializeOrder(updatedOrder),
   });
 };
