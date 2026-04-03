@@ -18,6 +18,7 @@ const ProductDetailsPage = lazy(() =>
   import("./pages/product-details-page").then((module) => ({ default: module.ProductDetailsPage })),
 );
 const CartPage = lazy(() => import("./pages/cart-page").then((module) => ({ default: module.CartPage })));
+const WishlistPage = lazy(() => import("./pages/wishlist-page").then((module) => ({ default: module.WishlistPage })));
 const OrdersPage = lazy(() =>
   import("./pages/orders-page").then((module) => ({ default: module.OrdersPage })),
 );
@@ -107,6 +108,16 @@ export default function App() {
                 <ProtectedRoute>
                   <PageTransition>
                     <CartPage />
+                  </PageTransition>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/wishlist"
+              element={
+                <ProtectedRoute>
+                  <PageTransition>
+                    <WishlistPage />
                   </PageTransition>
                 </ProtectedRoute>
               }

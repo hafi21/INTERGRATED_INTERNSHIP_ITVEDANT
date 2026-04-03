@@ -12,6 +12,7 @@ import customerRoutes from "./routes/customer.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import productRoutes from "./routes/product.routes.js";
+import wishlistRoutes from "./routes/wishlist.routes.js";
 
 export const app = express();
 
@@ -39,6 +40,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
 

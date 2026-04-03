@@ -91,6 +91,22 @@ export type CartResponse = {
   summary: CartSummary;
 };
 
+export type WishlistItem = {
+  id: number;
+  createdAt: string;
+  product: Product & {
+    isAvailable: boolean;
+  };
+};
+
+export type WishlistResponse = {
+  items: WishlistItem[];
+  summary: {
+    itemCount: number;
+    availableCount: number;
+  };
+};
+
 export type Order = {
   id: number;
   orderNumber: string;
