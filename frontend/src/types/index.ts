@@ -4,13 +4,34 @@ export type User = {
   id: number;
   fullName: string;
   email: string;
+  phone: string | null;
   role: UserRole;
+  status: boolean;
   createdAt: string;
 };
 
 export type AuthResponse = {
   token: string;
   user: User;
+};
+
+export type Customer = {
+  id: number;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  role: UserRole;
+  status: boolean;
+  createdAt: string;
+  updatedAt: string;
+  orderCount: number;
+  orderHistory: Array<{
+    id: number;
+    orderNumber: string;
+    status: string;
+    totalAmount: number;
+    createdAt: string;
+  }>;
 };
 
 export type Category = {

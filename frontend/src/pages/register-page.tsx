@@ -11,6 +11,9 @@ import { useAuth } from "../hooks/use-auth";
 const registerSchema = z.object({
   fullName: z.string().min(3, "Name must be at least 3 characters"),
   email: z.string().email("Enter a valid email"),
+  phone: z
+    .string()
+    .regex(/^[0-9]{10,15}$/, "Phone number must be 10 to 15 digits"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -80,6 +83,14 @@ export const RegisterPage = () => {
                   className="w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 outline-none focus:border-brand-300"
                 />
                 {errors.email ? <p className="mt-2 text-sm text-brand-700">{errors.email.message}</p> : null}
+              </div>
+              <div>
+                <input
+                  {...register("phone")}
+                  placeholder="Phone number"
+                  className="w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 outline-none focus:border-brand-300"
+                />
+                {errors.phone ? <p className="mt-2 text-sm text-brand-700">{errors.phone.message}</p> : null}
               </div>
               <div>
                 <input

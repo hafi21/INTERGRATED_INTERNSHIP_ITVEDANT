@@ -5,9 +5,8 @@ export type AuthContextValue = {
   user: User | null;
   loading: boolean;
   login: (payload: { email: string; password: string }) => Promise<User>;
-  register: (payload: { fullName: string; email: string; password: string }) => Promise<User>;
+  register: (payload: { fullName: string; email: string; phone: string; password: string }) => Promise<User>;
   logout: () => void;
 };
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-

@@ -9,12 +9,14 @@ const userSelect = {
   id: true,
   fullName: true,
   email: true,
+  phone: true,
   role: true,
+  status: true,
   createdAt: true,
 } as const;
 
 export const register = async (req: Request, res: Response) => {
-  const { fullName, email, password } = req.body;
+  const { fullName, email, phone, password } = req.body;
 
   const existingUser = await prisma.user.findUnique({
     where: { email },
@@ -30,6 +32,7 @@ export const register = async (req: Request, res: Response) => {
     data: {
       fullName,
       email,
+      phone,
       passwordHash,
     },
     select: userSelect,
@@ -58,6 +61,10 @@ export const login = async (req: Request, res: Response) => {
     throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid email or password");
   }
 
+  if (!user.status) {
+    throw new ApiError(StatusCodes.FORBIDDEN, "This account has been deactivated");
+  }
+
   const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
   if (!isPasswordValid) {
@@ -76,7 +83,9 @@ export const login = async (req: Request, res: Response) => {
       id: user.id,
       fullName: user.fullName,
       email: user.email,
+      phone: user.phone,
       role: user.role,
+      status: user.status,
       createdAt: user.createdAt,
     },
   });
@@ -96,6 +105,9 @@ export const me = async (req: Request, res: Response) => {
     throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
   }
 
+  if (!user.status) {
+    throw new ApiError(StatusCodes.FORBIDDEN, "This account is inactive");
+  }
+
   res.status(StatusCodes.OK).json({ user });
 };
-

@@ -1,5 +1,6 @@
-import { Link, NavLink } from "react-router-dom";
-import { ShoppingBag, ShieldCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { ChevronDown, ShoppingBag, ShieldCheck } from "lucide-react";
 import { Button } from "../shared/button";
 import { useAuth } from "../../hooks/use-auth";
 
@@ -12,6 +13,31 @@ const navItems = [
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const adminMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setAdminMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!adminMenuRef.current?.contains(event.target as Node)) {
+        setAdminMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const adminLinks = [
+    { to: "/admin/orders", label: "Order Admin" },
+    { to: "/admin/customers", label: "Customers" },
+    { to: "/admin/categories", label: "Categories" },
+    { to: "/admin/products", label: "Products" },
+  ];
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/60 bg-white/65 backdrop-blur-xl">
@@ -41,38 +67,44 @@ export const Navbar = () => {
             </NavLink>
           ))}
           {user?.role === "ADMIN" ? (
-            <>
-              <NavLink
-                to="/admin/orders"
-                className={({ isActive }) =>
-                  `rounded-full px-4 py-2 text-sm font-medium transition ${
-                    isActive ? "bg-brand-600 text-white" : "text-slate-600 hover:text-ink"
-                  }`
-                }
+            <div className="relative" ref={adminMenuRef}>
+              <button
+                type="button"
+                onClick={() => setAdminMenuOpen((current) => !current)}
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                  location.pathname.startsWith("/admin")
+                    ? "bg-brand-600 text-white"
+                    : "text-slate-600 hover:text-ink"
+                }`}
               >
-                Order Admin
-              </NavLink>
-              <NavLink
-                to="/admin/categories"
-                className={({ isActive }) =>
-                  `rounded-full px-4 py-2 text-sm font-medium transition ${
-                    isActive ? "bg-brand-600 text-white" : "text-slate-600 hover:text-ink"
-                  }`
-                }
-              >
-                Categories
-              </NavLink>
-              <NavLink
-                to="/admin/products"
-                className={({ isActive }) =>
-                  `rounded-full px-4 py-2 text-sm font-medium transition ${
-                    isActive ? "bg-brand-600 text-white" : "text-slate-600 hover:text-ink"
-                  }`
-                }
-              >
-                Products
-              </NavLink>
-            </>
+                Admin
+                <ChevronDown
+                  className={`h-4 w-4 transition ${adminMenuOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              {adminMenuOpen ? (
+                <div className="absolute right-0 top-[calc(100%+0.75rem)] w-56 overflow-hidden rounded-[24px] border border-white/70 bg-white/95 p-2 shadow-soft backdrop-blur-xl">
+                  {adminLinks.map((item) => {
+                    const isActive = location.pathname === item.to;
+
+                    return (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        className={`block rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                          isActive
+                            ? "bg-brand-600 text-white"
+                            : "text-slate-600 hover:bg-brand-50 hover:text-ink"
+                        }`}
+                      >
+                        {item.label}
+                      </NavLink>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
           ) : null}
         </nav>
 

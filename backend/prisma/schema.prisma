@@ -36,8 +36,10 @@ model User {
   id           Int        @id @default(autoincrement())
   fullName     String     @map("full_name")
   email        String     @unique
+  phone        String?    @db.VarChar(15)
   passwordHash String     @map("password_hash")
   role         UserRole   @default(CUSTOMER)
+  status       Boolean    @default(true)
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
   cartItems    CartItem[]

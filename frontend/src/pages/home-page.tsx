@@ -87,6 +87,9 @@ export const HomePage = () => {
                   <Link to="/admin/orders">
                     <Button variant="ghost">Manage orders</Button>
                   </Link>
+                  <Link to="/admin/customers">
+                    <Button variant="ghost">Manage customers</Button>
+                  </Link>
                   <Link to="/admin/categories">
                     <Button variant="ghost">Manage categories</Button>
                   </Link>

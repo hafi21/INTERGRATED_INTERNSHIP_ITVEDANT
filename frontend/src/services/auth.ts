@@ -2,7 +2,7 @@ import { api, storageKeys } from "./api";
 import type { AuthResponse, User } from "../types";
 
 export const authService = {
-  async register(payload: { fullName: string; email: string; password: string }) {
+  async register(payload: { fullName: string; email: string; phone: string; password: string }) {
     const { data } = await api.post<AuthResponse>("/auth/register", payload);
     localStorage.setItem(storageKeys.token, data.token);
     return data;
@@ -23,4 +23,3 @@ export const authService = {
     return Boolean(localStorage.getItem(storageKeys.token));
   },
 };
-

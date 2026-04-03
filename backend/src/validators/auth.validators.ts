@@ -4,6 +4,7 @@ export const registerSchema = z.object({
   body: z.object({
     fullName: z.string().min(3).max(80),
     email: z.string().email(),
+    phone: z.string().regex(/^[0-9]{10,15}$/, "Phone number must be 10 to 15 digits"),
     password: z
       .string()
       .min(8)
@@ -23,4 +24,3 @@ export const loginSchema = z.object({
   params: z.object({}).default({}),
   query: z.object({}).default({}),
 });
-

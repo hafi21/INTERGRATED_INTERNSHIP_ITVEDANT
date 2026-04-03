@@ -736,14 +736,18 @@ async function main() {
     where: { email: "admin@aureon.com" },
     update: {
       fullName: "Admin User",
+      phone: "9876543210",
       passwordHash: adminPasswordHash,
       role: UserRole.ADMIN,
+      status: true,
     },
     create: {
       fullName: "Admin User",
       email: "admin@aureon.com",
+      phone: "9876543210",
       passwordHash: adminPasswordHash,
       role: UserRole.ADMIN,
+      status: true,
     },
   });
 
@@ -751,14 +755,18 @@ async function main() {
     where: { email: "customer@aureon.com" },
     update: {
       fullName: "Aureon Customer",
+      phone: "9123456789",
       passwordHash: customerPasswordHash,
       role: UserRole.CUSTOMER,
+      status: true,
     },
     create: {
       fullName: "Aureon Customer",
       email: "customer@aureon.com",
+      phone: "9123456789",
       passwordHash: customerPasswordHash,
       role: UserRole.CUSTOMER,
+      status: true,
     },
   });
 
