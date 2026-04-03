@@ -36,7 +36,7 @@ export const WishlistItems = () => {
             />
             <div>
               <p className="text-xs uppercase tracking-widest text-brand-600">
-                {item.product.category.categoryName}
+                {item.product.category?.categoryName ?? "Collection"}
               </p>
               <h3 className="mt-1 text-lg font-semibold text-ink">{item.product.name}</h3>
               <p className="mt-2 text-lg font-semibold text-brand-700">
