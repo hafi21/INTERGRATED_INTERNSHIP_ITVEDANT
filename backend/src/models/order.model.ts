@@ -30,10 +30,14 @@ type OrderEntity = {
   payment?: {
     id: number;
     provider: string;
+    paymentMethod: string | null;
     transactionRef: string;
+    refundReference: string | null;
     amount: unknown;
     status: string;
     createdAt: Date;
+    updatedAt: Date;
+    refundedAt: Date | null;
   } | null;
 };
 

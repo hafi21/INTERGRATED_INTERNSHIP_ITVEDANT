@@ -152,7 +152,9 @@ export const AdminOrderDashboard = ({
                   </div>
 
                   <div className="mt-4 rounded-2xl bg-white/80 p-4 text-sm text-slate-600">
-                    {order.payment?.status === "SUCCESS"
+                    {order.payment?.status === "REFUNDED"
+                      ? `Payment refunded${order.payment.refundReference ? ` with ref ${order.payment.refundReference}` : ""}.`
+                      : order.payment?.status === "SUCCESS"
                       ? `Payment completed via ${order.payment.provider}`
                       : order.status === "CANCELLED"
                         ? "This order has been cancelled."

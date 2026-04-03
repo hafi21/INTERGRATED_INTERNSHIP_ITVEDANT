@@ -99,11 +99,14 @@ CREATE TABLE `order_items` (
 CREATE TABLE `payments` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `provider` VARCHAR(80) NOT NULL,
+    `payment_method` VARCHAR(80) NULL,
     `transaction_ref` VARCHAR(191) NOT NULL,
+    `refund_reference` VARCHAR(120) NULL,
     `amount` DECIMAL(10, 2) NOT NULL,
-    `status` ENUM('PENDING', 'SUCCESS', 'FAILED') NOT NULL DEFAULT 'PENDING',
+    `status` ENUM('PENDING', 'SUCCESS', 'FAILED', 'REFUNDED') NOT NULL DEFAULT 'PENDING',
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
+    `refunded_at` DATETIME(3) NULL,
     `order_id` INTEGER NOT NULL,
 
     UNIQUE INDEX `payments_transaction_ref_key`(`transaction_ref`),

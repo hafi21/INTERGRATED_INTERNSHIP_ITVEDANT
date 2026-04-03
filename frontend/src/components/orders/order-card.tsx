@@ -89,7 +89,9 @@ export const OrderCard = ({
             </div>
           ) : (
             <div className="rounded-2xl bg-white/80 p-4 text-sm text-slate-600">
-              {order.status === "CANCELLED"
+              {order.payment?.status === "REFUNDED"
+                ? `Refunded via ${order.payment.provider}${order.payment.refundReference ? ` with refund ref ${order.payment.refundReference}` : ""}`
+                : order.status === "CANCELLED"
                 ? "This order has been cancelled."
                 : `Paid via ${order.payment?.provider} with ref ${order.payment?.transactionRef}`}
             </div>

@@ -84,6 +84,9 @@ export const HomePage = () => {
               </Link>
               {user?.role === "ADMIN" ? (
                 <div className="flex flex-wrap gap-4">
+                  <Link to="/admin/payments">
+                    <Button variant="ghost">Manage payments</Button>
+                  </Link>
                   <Link to="/admin/orders">
                     <Button variant="ghost">Manage orders</Button>
                   </Link>

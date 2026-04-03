@@ -30,6 +30,7 @@ enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
+  REFUNDED
 }
 
 model User {
@@ -137,11 +138,14 @@ model OrderItem {
 model Payment {
   id             Int           @id @default(autoincrement())
   provider       String        @db.VarChar(80)
+  paymentMethod  String?       @map("payment_method") @db.VarChar(80)
   transactionRef String        @unique @map("transaction_ref")
+  refundReference String?      @map("refund_reference") @db.VarChar(120)
   amount         Decimal       @db.Decimal(10, 2)
   status         PaymentStatus @default(PENDING)
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
+  refundedAt     DateTime?     @map("refunded_at")
   orderId        Int           @unique @map("order_id")
   order          Order         @relation(fields: [orderId], references: [id])
 

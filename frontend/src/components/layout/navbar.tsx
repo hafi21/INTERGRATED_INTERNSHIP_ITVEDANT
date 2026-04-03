@@ -16,6 +16,7 @@ export const Navbar = () => {
   const location = useLocation();
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const adminMenuRef = useRef<HTMLDivElement | null>(null);
+  const accountLabel = user?.fullName?.trim() || "My Account";
 
   useEffect(() => {
     setAdminMenuOpen(false);
@@ -33,6 +34,7 @@ export const Navbar = () => {
   }, []);
 
   const adminLinks = [
+    { to: "/admin/payments", label: "Payments" },
     { to: "/admin/orders", label: "Order Admin" },
     { to: "/admin/customers", label: "Customers" },
     { to: "/admin/categories", label: "Categories" },
@@ -111,10 +113,10 @@ export const Navbar = () => {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <div className="hidden rounded-full border border-brand-100 bg-brand-50 px-4 py-2 text-sm text-brand-700 sm:flex">
+              <div className="hidden max-w-[240px] rounded-full border border-brand-100 bg-brand-50 px-4 py-2 text-sm text-brand-700 sm:flex">
                 <span className="flex items-center gap-2">
                   {user.role === "ADMIN" ? <ShieldCheck className="h-4 w-4" /> : null}
-                  {user.role === "ADMIN" ? "Admin" : "My Account"}
+                  <span className="truncate font-medium">{accountLabel}</span>
                 </span>
               </div>
               <Button variant="ghost" onClick={logout}>

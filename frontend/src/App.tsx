@@ -27,6 +27,9 @@ const AdminCustomersPage = lazy(() =>
 const AdminOrdersPage = lazy(() =>
   import("./pages/admin-orders-page").then((module) => ({ default: module.AdminOrdersPage })),
 );
+const AdminPaymentsPage = lazy(() =>
+  import("./pages/admin-payments-page").then((module) => ({ default: module.AdminPaymentsPage })),
+);
 const AdminCategoriesPage = lazy(() =>
   import("./pages/admin-categories-page").then((module) => ({ default: module.AdminCategoriesPage })),
 );
@@ -114,6 +117,16 @@ export default function App() {
                 <ProtectedRoute>
                   <PageTransition>
                     <OrdersPage />
+                  </PageTransition>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/payments"
+              element={
+                <ProtectedRoute adminOnly>
+                  <PageTransition>
+                    <AdminPaymentsPage />
                   </PageTransition>
                 </ProtectedRoute>
               }

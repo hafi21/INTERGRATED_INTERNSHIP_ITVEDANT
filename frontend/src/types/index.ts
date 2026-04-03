@@ -121,11 +121,40 @@ export type Order = {
   payment: {
     id: number;
     provider: string;
+    paymentMethod: string | null;
     transactionRef: string;
+    refundReference: string | null;
     amount: number;
     status: string;
     createdAt: string;
+    updatedAt: string;
+    refundedAt: string | null;
   } | null;
+};
+
+export type PaymentRecord = {
+  id: number;
+  provider: string;
+  paymentMethod: string | null;
+  transactionRef: string;
+  refundReference: string | null;
+  amount: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  refundedAt: string | null;
+  order: {
+    id: number;
+    orderNumber: string;
+    status: string;
+    totalAmount: number;
+    createdAt: string;
+    customer: {
+      id: number;
+      fullName: string;
+      email: string;
+    };
+  };
 };
 
 export type RazorpayCheckoutPayload = {
