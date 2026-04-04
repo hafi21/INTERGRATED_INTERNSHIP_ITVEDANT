@@ -1,7 +1,9 @@
 import { PackageCheck, Truck, XCircle } from "lucide-react";
+import { useState } from "react";
 import type { Order } from "../../types";
 import { formatCurrency, formatDate } from "../../lib/format";
 import { getOrderStatusLabel, getOrderStatusTone } from "../../lib/order-status";
+import { ShippingInfoModal } from "./shipping-info-modal";
 import { Button } from "../shared/button";
 import { Card } from "../shared/card";
 import { EmptyState } from "../shared/empty-state";
@@ -22,7 +24,10 @@ export const AdminOrderDashboard = ({
   onShip,
   onDeliver,
   onCancel,
-}: AdminOrderDashboardProps) => (
+}: AdminOrderDashboardProps) => {
+  const [shippingModalOrderId, setShippingModalOrderId] = useState<number | null>(null);
+
+  return (
   <Card className="overflow-hidden p-0">
     <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
       <div>
@@ -124,7 +129,14 @@ export const AdminOrderDashboard = ({
                     </div>
                   </div>
 
-                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                  <div className="mt-5 grid gap-3 sm:grid-cols-4">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setShippingModalOrderId(order.id)}
+                    >
+                      <Truck className="h-4 w-4" />
+                      Shipping Info
+                    </Button>
                     <Button
                       variant="ghost"
                       onClick={() => onShip(order)}
@@ -174,5 +186,14 @@ export const AdminOrderDashboard = ({
         />
       </div>
     )}
+
+    {shippingModalOrderId && (
+      <ShippingInfoModal
+        orderId={shippingModalOrderId}
+        isOpen={true}
+        onClose={() => setShippingModalOrderId(null)}
+      />
+    )}
   </Card>
-);
+  );
+};

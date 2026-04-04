@@ -134,6 +134,12 @@ export type Order = {
       imageUrl: string;
     };
   }>;
+  shipping?: {
+    id: number;
+    courierService: string | null;
+    trackingNumber: string | null;
+    shippingStatus: string;
+  } | null;
   payment: {
     id: number;
     provider: string;

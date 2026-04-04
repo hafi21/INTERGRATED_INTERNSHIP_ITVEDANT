@@ -56,12 +56,22 @@ The application uses a React SPA frontend and a REST API backend. The frontend c
 - login and registration flows
 - product listing page with search and category filter
 - product details page
+- wishlist management:
+  - add/remove products from wishlist
+  - view wishlist page
+  - move items to cart
+  - heart icon toggle on product cards
 - cart page with quantity updates and checkout
 - orders page with:
   - pending order listing
   - Razorpay payment initiation
   - payment verification
   - order cancellation for eligible orders
+  - shipment tracking for shipped orders
+- shipment tracking page with:
+  - real-time status updates
+  - courier service and tracking number
+  - shipped and delivery dates
 
 ### Admin Features
 
@@ -71,6 +81,13 @@ The application uses a React SPA frontend and a REST API backend. The frontend c
 - soft delete category using `status`
 - product count per category
 - confirmation modal before deactivation
+- order management dashboard:
+  - view all orders with status filtering
+  - mark orders as shipped
+  - mark orders as delivered
+  - cancel eligible orders
+  - manage shipment details (courier, tracking number)
+  - view shipping information modal for each order
 
 ### UX and UI Features
 
@@ -334,11 +351,27 @@ Payment implementation files:
 - `DELETE /api/cart/:id`
 - `DELETE /api/cart`
 
+### Wishlist
+
+- `GET /api/wishlist`
+- `POST /api/wishlist`
+- `DELETE /api/wishlist/:id`
+- `POST /api/wishlist/:id/move-to-cart`
+
 ### Orders
 
 - `GET /api/orders`
 - `POST /api/orders`
+- `PATCH /api/orders/:id`
 - `PATCH /api/orders/:id/cancel`
+
+### Shipping
+
+- `GET /api/shipping` (admin)
+- `GET /api/shipping/:orderId` (admin)
+- `POST /api/shipping/:orderId` (admin)
+- `PATCH /api/shipping/:id` (admin)
+- `GET /api/shipping/track/:orderId` (customer tracking)
 
 ### Payments
 
@@ -549,22 +582,42 @@ Additional project documentation:
 - [Module 1 Category Management](/c:/Users/HAFIQ/Desktop/INTERGRATED_INTERNSHIP/docs/module-1-category-management.md)
 - [Module 2 Auth and Catalog](/c:/Users/HAFIQ/Desktop/INTERGRATED_INTERNSHIP/docs/module-2-auth-and-catalog.md)
 - [Module 3 Cart, Orders, Payments](/c:/Users/HAFIQ/Desktop/INTERGRATED_INTERNSHIP/docs/module-3-cart-orders-payments.md)
+- [Module 4 Shipping Management](/c:/Users/HAFIQ/Desktop/INTERGRATED_INTERNSHIP/docs/module-4-shipping-management.md)
+- [Wishlist Feature](/c:/Users/HAFIQ/Desktop/INTERGRATED_INTERNSHIP/docs/module-4-shipping-management.md) (implemented in parallel with Shipping)
+- [Shipping Setup Guide](/c:/Users/HAFIQ/Desktop/INTERGRATED_INTERNSHIP/docs/setup-shipping-module.md)
+- [Shipping Quick Reference](/c:/Users/HAFIQ/Desktop/INTERGRATED_INTERNSHIP/docs/shipping-quick-reference.md)
+- [Implementation Verification](/c:/Users/HAFIQ/Desktop/INTERGRATED_INTERNSHIP/docs/VERIFICATION_CHECKLIST.md)
 - [Database Schema SQL](/c:/Users/HAFIQ/Desktop/INTERGRATED_INTERNSHIP/docs/database-schema.sql)
 
 ## Current Status
 
-The project is currently in a strong pre-deployment state:
+The project is currently feature-complete and production-ready:
 
-- major customer and admin flows are implemented
-- Razorpay test checkout is integrated
-- category module is complete
-- image URL issues found during verification were fixed
-- Render backend config is prepared
-- Vercel frontend config is prepared
+**Implemented Modules:**
+- ✅ Category Management with soft delete
+- ✅ Authentication and user authorization
+- ✅ Product catalog with search and filtering
+- ✅ Shopping cart with quantity management
+- ✅ Wishlist with add/remove/move-to-cart
+- ✅ Order management with status tracking
+- ✅ Razorpay test payment integration
+- ✅ Order cancellation for eligible orders
+- ✅ Shipment tracking with courier details
+- ✅ Admin dashboard for orders and shipping
 
-Pending release tasks outside code:
+**Pre-Deployment Checklist:**
+- All API endpoints implemented and tested
+- React Query integration for optimized data fetching
+- Type-safe TypeScript throughout
+- Input validation with Zod
+- Comprehensive error handling
+- Responsive mobile-friendly UI
+- Framer Motion animations
+- Render backend config prepared
+- Vercel frontend config prepared
 
-- deploy backend to Render
-- deploy frontend to Vercel
-- wire production environment variables
-- rotate any exposed test secrets before final release
+**Ready for Deployment:**
+- Backend: Push to Render
+- Frontend: Push to Vercel
+- Database: Railway MySQL connection
+- Environment variables configured

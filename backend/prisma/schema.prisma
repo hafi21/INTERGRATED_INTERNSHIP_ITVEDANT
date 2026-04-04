@@ -26,6 +26,14 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum ShippingStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 enum PaymentStatus {
   PENDING
   SUCCESS
@@ -116,6 +124,7 @@ model Order {
   user            User         @relation(fields: [userId], references: [id])
   orderItems      OrderItem[]
   payment         Payment?
+  shipping        Shipping?
 
   @@index([userId], map: "idx_orders_user_id")
   @@map("orders")
@@ -162,4 +171,20 @@ model Wishlist {
 
   @@unique([userId, productId], map: "wishlist_user_product_unique")
   @@map("wishlist")
+}
+
+model Shipping {
+  id               Int            @id @default(autoincrement())
+  courierService   String?        @map("courier_service") @db.VarChar(100)
+  trackingNumber   String?        @map("tracking_number") @db.VarChar(100)
+  shippingStatus   ShippingStatus @default(PENDING) @map("shipping_status")
+  shippingCost     Decimal        @db.Decimal(10, 2) @map("shipping_cost")
+  shippedAt        DateTime?      @map("shipped_at")
+  deliveredAt      DateTime?      @map("delivered_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  orderId          Int            @unique @map("order_id")
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("shipping")
 }

@@ -26,6 +26,7 @@ const orderInclude = {
     },
   },
   payment: true,
+  shipping: true,
 } as const;
 
 const statusFilterMap: Record<string, OrderStatus> = {
@@ -212,7 +213,7 @@ export const cancelOrder = async (req: Request, res: Response) => {
 export const updateOrderStatus = async (req: Request, res: Response) => {
   const order = await prisma.order.findUnique({
     where: { id: Number(req.params.id) },
-    include: orderInclude,
+    include: { ...orderInclude, shipping: true },
   });
 
   if (!order) {
@@ -231,6 +232,29 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
 
   if (nextStatus === OrderStatus.PENDING && order.payment?.status === "SUCCESS") {
     throw new ApiError(StatusCodes.BAD_REQUEST, "Paid orders cannot be moved back to pending");
+  }
+
+  // Create shipping record when transitioning to PROCESSING (shipping)
+  if (nextStatus === OrderStatus.PROCESSING && !order.shipping) {
+    await prisma.shipping.create({
+      data: {
+        orderId: order.id,
+        shippingCost: order.shippingFee,
+        shippingStatus: "SHIPPED",
+        shippedAt: new Date(),
+      },
+    });
+  }
+
+  // Update shipping status to DELIVERED when transitioning to FULFILLED
+  if (nextStatus === OrderStatus.FULFILLED && order.shipping) {
+    await prisma.shipping.update({
+      where: { orderId: order.id },
+      data: {
+        shippingStatus: "DELIVERED",
+        deliveredAt: new Date(),
+      },
+    });
   }
 
   const updatedOrder = await prisma.order.update({

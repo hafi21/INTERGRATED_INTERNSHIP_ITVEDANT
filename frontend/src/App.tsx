@@ -22,6 +22,12 @@ const WishlistPage = lazy(() => import("./pages/wishlist-page").then((module) =>
 const OrdersPage = lazy(() =>
   import("./pages/orders-page").then((module) => ({ default: module.OrdersPage })),
 );
+const OrderTrackingPage = lazy(() =>
+  import("./pages/order-tracking-page").then((module) => ({ default: module.OrderTracking })),
+);
+const TrackShipmentPage = lazy(() =>
+  import("./pages/track-shipment-page").then((module) => ({ default: module.TrackShipmentPage })),
+);
 const AdminCustomersPage = lazy(() =>
   import("./pages/admin-customers-page").then((module) => ({ default: module.AdminCustomersPage })),
 );
@@ -130,6 +136,24 @@ export default function App() {
                     <OrdersPage />
                   </PageTransition>
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders/:orderId/track"
+              element={
+                <ProtectedRoute>
+                  <PageTransition>
+                    <OrderTrackingPage />
+                  </PageTransition>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/track-shipment"
+              element={
+                <PageTransition>
+                  <TrackShipmentPage />
+                </PageTransition>
               }
             />
             <Route

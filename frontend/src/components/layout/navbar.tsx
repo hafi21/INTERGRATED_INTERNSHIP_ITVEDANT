@@ -10,6 +10,7 @@ const navItems = [
   { to: "/cart", label: "Cart" },
   { to: "/wishlist", label: "Wishlist" },
   { to: "/orders", label: "Orders" },
+  { to: "/track-shipment", label: "Track Shipment" },
 ];
 
 export const Navbar = () => {

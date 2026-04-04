@@ -42,6 +42,8 @@ export const AdminOrdersPage = () => {
       orderService.updateStatus(orderId, status),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      await queryClient.invalidateQueries({ queryKey: ["shipment-tracking"] });
+      await queryClient.invalidateQueries({ queryKey: ["shipping"] });
       toast.success("Order status updated");
     },
     onError: (error: unknown) => toast.error(getErrorMessage(error, "Could not update order status")),

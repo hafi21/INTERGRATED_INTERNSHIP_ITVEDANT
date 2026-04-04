@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CreditCard, XCircle } from "lucide-react";
+import { CreditCard, XCircle, Truck } from "lucide-react";
 import type { Order } from "../../types";
 import { formatCurrency, formatDate } from "../../lib/format";
 import { getOrderStatusLabel, getOrderStatusTone } from "../../lib/order-status";
@@ -69,6 +69,31 @@ export const OrderCard = ({
               <span>{formatCurrency(order.totalAmount)}</span>
             </div>
           </div>
+          
+          {/* Tracking Details */}
+          {order.shipping && (order.shipping.courierService || order.shipping.trackingNumber) && (
+            <div className="mt-4 rounded-2xl border-2 border-brand-200 bg-brand-50/50 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Truck className="h-4 w-4 text-brand-600" />
+                <h4 className="font-semibold text-ink">Tracking Information</h4>
+              </div>
+              <div className="space-y-2 text-sm">
+                {order.shipping.courierService && (
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-slate-500">Courier Service</p>
+                    <p className="font-medium text-ink">{order.shipping.courierService}</p>
+                  </div>
+                )}
+                {order.shipping.trackingNumber && (
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-slate-500">Tracking Number</p>
+                    <p className="font-medium text-ink break-all">{order.shipping.trackingNumber}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
           {!order.payment && order.status !== "CANCELLED" ? (
             <div className="space-y-3">
               <Button onClick={onPay} disabled={loading || cancelLoading} className="w-full">
