@@ -11,7 +11,7 @@ type ShippingInfoModalProps = {
   onClose: () => void;
 };
 
-export const ShippingInfoModal = ({ orderId, isOpen, onClose, position }: ShippingInfoModalProps) => {
+export const ShippingInfoModal = ({ orderId, isOpen, onClose }: ShippingInfoModalProps) => {
   const { shipping, isLoadingShipping, updateShipping, isUpdatingShipping } = useShipping(orderId);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
