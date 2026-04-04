@@ -4,7 +4,6 @@ import type { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import { serializeShipping } from "../models/shipping.model.js";
 import { ApiError } from "../utils/api-error.js";
-import { decimalToNumber } from "../utils/serializers.js";
 
 const shippingInclude = {
   order: {
@@ -79,7 +78,13 @@ export const updateShipping = async (req: Request, res: Response) => {
     throw new ApiError(StatusCodes.NOT_FOUND, "Shipping record not found");
   }
 
-  const updateData: any = {};
+  const updateData: {
+    courierService?: string;
+    trackingNumber?: string;
+    shippingStatus?: ShippingStatus;
+    shippedAt?: Date;
+    deliveredAt?: Date;
+  } = {};
 
   if (courierService) updateData.courierService = courierService;
   if (trackingNumber) updateData.trackingNumber = trackingNumber;

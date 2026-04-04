@@ -78,5 +78,7 @@ export const useWishlist = () => {
     isAdding: addMutation.isPending,
     isRemoving: removeMutation.isPending,
     isMoving: moveToCartMutation.isPending,
+    removingItemId: removeMutation.isPending ? (removeMutation.variables ?? null) : null,
+    movingItemId: moveToCartMutation.isPending ? (moveToCartMutation.variables ?? null) : null,
   };
 };

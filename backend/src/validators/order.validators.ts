@@ -15,6 +15,13 @@ export const createOrderSchema = z.object({
   body: z.object({
     shippingAddress: z.string().min(12).max(255),
     paymentProvider: z.enum(["RAZORPAY", "COD"]).default("RAZORPAY"),
+    couponCode: z
+      .string()
+      .trim()
+      .min(3)
+      .max(50)
+      .regex(/^[A-Z0-9_-]+$/)
+      .optional(),
   }),
   params: z.object({}).default({}),
   query: z.object({}).default({}),

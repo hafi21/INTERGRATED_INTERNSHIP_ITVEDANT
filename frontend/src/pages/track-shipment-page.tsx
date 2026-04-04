@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Loader2, AlertCircle, Package, PackageCheck, Truck } from "lucide-react";
-import { api } from "../services/api";
+import axios from "axios";
 import { Card } from "../components/shared/card";
 import { Button } from "../components/shared/button";
 import { formatCurrency } from "../lib/format";
+import { shippingService } from "../services/shipping";
 
 type TrackingResult = {
   id: number;
@@ -97,12 +98,14 @@ export const TrackShipmentPage = () => {
     setLoading(true);
 
     try {
-      const response = await api.post("/shipping/search-by-tracking", {
-        trackingNumber: trackingNumber.trim(),
-      });
-      setResult(response.data.tracking);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Shipment not found. Please check your tracking number.");
+      const tracking = await shippingService.searchByTrackingNumber(trackingNumber.trim());
+      setResult(tracking);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.message ?? "Shipment not found. Please check your tracking number.");
+      } else {
+        setError("Shipment not found. Please check your tracking number.");
+      }
     } finally {
       setLoading(false);
     }

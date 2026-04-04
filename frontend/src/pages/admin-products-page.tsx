@@ -54,12 +54,12 @@ export const AdminProductsPage = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (productId: number) => productService.deactivate(productId),
-    onSuccess: () => {
+    onSuccess: (_data, productId) => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success("Product deactivated");
       setDeleteTarget(null);
       setSelectedProduct((current) =>
-        current && deleteTarget && current.id === deleteTarget.id
+        current && current.id === productId
           ? null
           : current,
       );
@@ -71,9 +71,9 @@ export const AdminProductsPage = () => {
   return (
     <main className="section-shell py-14">
       <SectionHeading
-        eyebrow="Part 2 Submission Module"
-        title="Admin product management with stock, pricing, and soft deactivation"
-        description="This module now includes the full product workflow required for submission: admin-only creation, update, dashboard controls, category mapping, inventory count, SKU support, and a warning before deactivation."
+        eyebrow="Catalog Operations"
+        title="Product management"
+        description="Manage SKUs, pricing, inventory, and product status from one admin workspace."
       />
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">

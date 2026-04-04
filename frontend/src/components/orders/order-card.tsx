@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { CreditCard, XCircle, Truck } from "lucide-react";
+import { CreditCard, Star, XCircle, Truck } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Order } from "../../types";
 import { formatCurrency, formatDate } from "../../lib/format";
 import { getOrderStatusLabel, getOrderStatusTone } from "../../lib/order-status";
@@ -18,7 +19,14 @@ export const OrderCard = ({
   onCancel: () => void;
   loading: boolean;
   cancelLoading: boolean;
-}) => (
+}) => {
+  const canRatePurchasedItems =
+    (["PAID", "PROCESSING", "FULFILLED"].includes(order.status) ||
+      order.payment?.status === "SUCCESS") &&
+    order.status !== "CANCELLED" &&
+    order.payment?.status !== "REFUNDED";
+
+  return (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -47,6 +55,33 @@ export const OrderCard = ({
                 <p className="text-sm text-slate-500">
                   {item.quantity} x {formatCurrency(item.unitPrice)}
                 </p>
+                {canRatePurchasedItems ? (
+                  <div className="mt-2 space-y-2">
+                    <Link
+                      to={`/products/${item.product.id}#reviews`}
+                      className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700 transition hover:border-brand-300 hover:bg-brand-100 hover:text-brand-800"
+                    >
+                      <Star className="h-3.5 w-3.5" />
+                      Rate Product
+                    </Link>
+                    {order.shipping?.trackingNumber || order.shipping?.courierService ? (
+                      <div className="space-y-1 text-xs text-slate-600">
+                        {order.shipping?.trackingNumber ? (
+                          <p>
+                            <span className="font-semibold text-slate-700">Tracking:</span>{" "}
+                            <span className="break-all">{order.shipping.trackingNumber}</span>
+                          </p>
+                        ) : null}
+                        {order.shipping?.courierService ? (
+                          <p>
+                            <span className="font-semibold text-slate-700">Delivery:</span>{" "}
+                            {order.shipping.courierService}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
               <span className="text-sm font-semibold text-ink">{formatCurrency(item.lineTotal)}</span>
             </div>
@@ -64,6 +99,14 @@ export const OrderCard = ({
               <span>Shipping</span>
               <span>{formatCurrency(order.shippingFee)}</span>
             </div>
+            {order.discountAmount > 0 ? (
+              <div className="flex justify-between">
+                <span>
+                  Discount{order.coupon?.couponCode ? ` (${order.coupon.couponCode})` : ""}
+                </span>
+                <span className="text-emerald-600">- {formatCurrency(order.discountAmount)}</span>
+              </div>
+            ) : null}
             <div className="flex justify-between border-t border-brand-100 pt-2 text-base font-semibold text-ink">
               <span>Total</span>
               <span>{formatCurrency(order.totalAmount)}</span>
@@ -125,4 +168,5 @@ export const OrderCard = ({
       </div>
     </Card>
   </motion.div>
-);
+  );
+};

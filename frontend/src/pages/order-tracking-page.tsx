@@ -1,7 +1,6 @@
 import { Loader2, Package, PackageCheck, Truck } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useShipping } from "../services/shipping";
-import { useAuth } from "../hooks/use-auth";
 import { Card } from "../components/shared/card";
 
 const getStatusIcon = (status: string) => {
@@ -40,7 +39,6 @@ const getStatusDescription = (status: string) => {
 
 export const OrderTracking = () => {
   const { orderId } = useParams<{ orderId: string }>();
-  const { user } = useAuth();
   const { tracking, isLoadingTracking } = useShipping(orderId ? Number(orderId) : undefined);
 
   if (!orderId) {

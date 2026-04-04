@@ -123,6 +123,16 @@ export const AdminOrderDashboard = ({
                       <span>Shipping</span>
                       <span>{formatCurrency(order.shippingFee)}</span>
                     </div>
+                    {order.discountAmount > 0 ? (
+                      <div className="flex justify-between">
+                        <span>
+                          Discount{order.coupon?.couponCode ? ` (${order.coupon.couponCode})` : ""}
+                        </span>
+                        <span className="text-emerald-600">
+                          - {formatCurrency(order.discountAmount)}
+                        </span>
+                      </div>
+                    ) : null}
                     <div className="flex justify-between border-t border-brand-100 pt-2 text-base font-semibold text-ink">
                       <span>Total</span>
                       <span>{formatCurrency(order.totalAmount)}</span>

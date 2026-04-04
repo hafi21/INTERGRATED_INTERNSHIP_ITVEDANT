@@ -1,16 +1,19 @@
 import axios from "axios";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Percent, Plus, Trash2, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { CartSummary } from "../components/cart/cart-summary";
+import { CouponMarquee } from "../components/cart/coupon-marquee";
 import { Button } from "../components/shared/button";
 import { Card } from "../components/shared/card";
 import { EmptyState } from "../components/shared/empty-state";
 import { formatCurrency } from "../lib/format";
 import { cartService } from "../services/cart";
+import { couponService } from "../services/coupons";
 import { orderService } from "../services/orders";
+import type { Coupon, CouponApplySummary } from "../types";
 
 export const CartPage = () => {
   const queryClient = useQueryClient();
@@ -21,16 +24,29 @@ export const CartPage = () => {
   const [paymentProvider, setPaymentProvider] = useState<"RAZORPAY" | "COD">(
     "RAZORPAY",
   );
+  const [couponCodeInput, setCouponCodeInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponSummary, setCouponSummary] = useState<CouponApplySummary | null>(null);
 
   const { data: cart, isLoading } = useQuery({
     queryKey: ["cart"],
     queryFn: () => cartService.get(),
   });
+  const { data: availableCoupons = [] } = useQuery({
+    queryKey: ["coupons", "available"],
+    queryFn: () => couponService.listAvailable(),
+    staleTime: 10_000,
+    refetchInterval: 15_000,
+  });
 
   const updateItemMutation = useMutation({
     mutationFn: ({ id, quantity }: { id: number; quantity: number }) =>
       cartService.update(id, quantity),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      setAppliedCoupon(null);
+      setCouponSummary(null);
+    },
     onError: () => toast.error("Unable to update cart"),
   });
 
@@ -39,16 +55,44 @@ export const CartPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       toast.success("Item removed");
+      setAppliedCoupon(null);
+      setCouponSummary(null);
     },
     onError: () => toast.error("Unable to remove item"),
   });
 
+  const applyCouponMutation = useMutation({
+    mutationFn: () => couponService.apply(couponCodeInput.trim().toUpperCase()),
+    onSuccess: (data) => {
+      setAppliedCoupon(data.coupon);
+      setCouponSummary(data.summary);
+      setCouponCodeInput(data.coupon.couponCode);
+      toast.success("Coupon applied successfully");
+    },
+    onError: (error) => {
+      const message = axios.isAxiosError(error)
+        ? (error.response?.data?.message ?? "Coupon could not be applied")
+        : "Coupon could not be applied";
+      toast.error(message);
+      setAppliedCoupon(null);
+      setCouponSummary(null);
+    },
+  });
+
   const orderMutation = useMutation({
-    mutationFn: () => orderService.create({ shippingAddress, paymentProvider }),
+    mutationFn: () =>
+      orderService.create({
+        shippingAddress,
+        paymentProvider,
+        couponCode: appliedCoupon?.couponCode,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       toast.success("Order placed successfully");
+      setAppliedCoupon(null);
+      setCouponSummary(null);
+      setCouponCodeInput("");
       navigate("/orders");
     },
     onError: (error) => {
@@ -78,6 +122,7 @@ export const CartPage = () => {
 
   return (
     <main className="section-shell py-14">
+      <CouponMarquee coupons={availableCoupons} />
       <div className="mb-8">
         <h1 className="text-4xl font-semibold text-ink">Shopping Cart</h1>
         <p className="mt-2 text-sm text-slate-500">Review your items and place your order.</p>
@@ -143,9 +188,56 @@ export const CartPage = () => {
               <option value="RAZORPAY">Razorpay</option>
               <option value="COD">Cash on Delivery</option>
             </select>
+
+            <div className="rounded-2xl border border-brand-100 bg-brand-50/40 p-4">
+              <label className="text-xs uppercase tracking-[0.24em] text-brand-600">
+                Coupon code
+              </label>
+              <div className="mt-3 flex flex-wrap gap-3">
+                <div className="relative min-w-[220px] flex-1">
+                  <Percent className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    value={couponCodeInput}
+                    onChange={(event) => setCouponCodeInput(event.target.value.toUpperCase())}
+                    placeholder="ENTER CODE"
+                    className="w-full rounded-2xl border border-white/80 bg-white px-10 py-3 text-sm font-medium tracking-[0.08em] outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
+                  />
+                </div>
+                <Button
+                  variant="ghost"
+                  onClick={() => applyCouponMutation.mutate()}
+                  disabled={!couponCodeInput.trim() || applyCouponMutation.isPending}
+                >
+                  {applyCouponMutation.isPending ? "Applying..." : "Apply Coupon"}
+                </Button>
+                {appliedCoupon ? (
+                  <Button
+                    variant="soft"
+                    className="text-slate-700"
+                    onClick={() => {
+                      setAppliedCoupon(null);
+                      setCouponSummary(null);
+                      setCouponCodeInput("");
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                    Remove
+                  </Button>
+                ) : null}
+              </div>
+              {appliedCoupon ? (
+                <p className="mt-3 text-xs text-emerald-700">
+                  {appliedCoupon.couponCode} applied: save{" "}
+                  {formatCurrency(couponSummary?.discountAmount ?? 0)} on this order.
+                </p>
+              ) : null}
+            </div>
           </Card>
           <CartSummary
-            subtotal={cart.summary.subtotal}
+            subtotal={couponSummary?.subtotal ?? cart.summary.subtotal}
+            shippingOverride={couponSummary?.shippingFee}
+            discountAmount={couponSummary?.discountAmount ?? 0}
+            couponCode={appliedCoupon?.couponCode}
             onCheckout={() => orderMutation.mutate()}
             loading={orderMutation.isPending}
           />

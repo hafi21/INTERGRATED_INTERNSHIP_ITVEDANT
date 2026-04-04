@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import type { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import { serializeOrder } from "../models/order.model.js";
+import { computeCouponDiscount } from "../utils/coupon.js";
 import { ApiError } from "../utils/api-error.js";
 import { createOrderNumber, decimalToNumber, roundCurrency } from "../utils/serializers.js";
 
@@ -27,6 +28,14 @@ const orderInclude = {
   },
   payment: true,
   shipping: true,
+  coupon: {
+    select: {
+      couponId: true,
+      couponCode: true,
+      discountType: true,
+      discountValue: true,
+    },
+  },
 } as const;
 
 const statusFilterMap: Record<string, OrderStatus> = {
@@ -97,7 +106,74 @@ export const createOrder = async (req: Request, res: Response) => {
     ),
   );
   const shippingFee = subtotal >= 500 ? 0 : 25;
-  const totalAmount = roundCurrency(subtotal + shippingFee);
+  let discountAmount = 0;
+  let couponId: number | undefined;
+
+  if (req.body.couponCode) {
+    const normalizedCouponCode = String(req.body.couponCode).trim().toUpperCase();
+    const now = new Date();
+    const coupon = await prisma.coupon.findFirst({
+      where: {
+        couponCode: normalizedCouponCode,
+      },
+      include: {
+        _count: {
+          select: {
+            orders: {
+              where: {
+                status: {
+                  not: OrderStatus.CANCELLED,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!coupon) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Coupon code is invalid");
+    }
+
+    if (!coupon.status) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Coupon is inactive");
+    }
+
+    if (coupon.validFrom > now) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `Coupon will be active from ${coupon.validFrom.toLocaleString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })}`,
+      );
+    }
+
+    if (coupon.validTo < now) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Coupon has expired");
+    }
+
+    if (coupon._count.orders >= coupon.usageLimit) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Coupon usage limit reached");
+    }
+
+    const calculation = computeCouponDiscount(coupon, cartItems);
+
+    if (!calculation.applicable) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        calculation.reason ?? "Coupon is not applicable",
+      );
+    }
+
+    discountAmount = calculation.discountAmount;
+    couponId = coupon.couponId;
+  }
+
+  const totalAmount = roundCurrency(Math.max(subtotal + shippingFee - discountAmount, 0));
 
   const createOrderOperation = prisma.order.create({
     data: {
@@ -106,7 +182,9 @@ export const createOrder = async (req: Request, res: Response) => {
       shippingAddress: req.body.shippingAddress,
       subtotal,
       shippingFee,
+      discountAmount,
       totalAmount,
+      couponId,
       orderItems: {
         create: cartItems.map((item) => ({
           productId: item.productId,

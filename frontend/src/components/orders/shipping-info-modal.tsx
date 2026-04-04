@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlertCircle, Edit2, Loader2, Package, Truck, X } from "lucide-react";
+import { AlertCircle, Edit2, Loader2, Truck, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { useShipping } from "../../services/shipping";
 import { Button } from "../shared/button";

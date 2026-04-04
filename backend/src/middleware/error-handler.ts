@@ -23,6 +23,14 @@ export const errorHandler = (
   }
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2021" || error.code === "P2022") {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message:
+          "Database schema is out of sync. Run the latest Prisma migrations and redeploy.",
+        code: error.code,
+      });
+    }
+
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: "Database request failed",
       code: error.code,

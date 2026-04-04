@@ -33,13 +33,13 @@ export const AdminCategoriesPage = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (categoryId: number) => categoryService.deactivate(categoryId),
-    onSuccess: () => {
+    onSuccess: (_data, categoryId) => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast.success("Category deactivated");
       setDeleteTarget(null);
-      if (selectedCategory && !selectedCategory.status) {
-        setSelectedCategory(null);
-      }
+      setSelectedCategory((current) =>
+        current && current.categoryId === categoryId ? null : current,
+      );
     },
     onError: () => toast.error("Unable to deactivate category"),
   });
@@ -47,9 +47,9 @@ export const AdminCategoriesPage = () => {
   return (
     <main className="section-shell py-14">
       <SectionHeading
-        eyebrow="Mandatory First Module"
-        title="Admin category management with soft-delete safety"
-        description="This dashboard fulfills the first required module with create, update, dashboard metrics, and deactivation behavior backed by secure admin APIs."
+        eyebrow="Catalog Control"
+        title="Category management"
+        description="Create, update, and deactivate product categories while keeping storefront organization clean and consistent."
       />
       <div className="mt-10 grid gap-8 xl:grid-cols-[0.95fr,1.05fr]">
         <CategoryForm

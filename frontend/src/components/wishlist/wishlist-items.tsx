@@ -1,13 +1,27 @@
-import { Heart, Trash2, ShoppingCart } from "lucide-react";
-import { useWishlist } from "../../services/wishlist";
+import { Trash2, ShoppingCart } from "lucide-react";
 import { Button } from "../shared/button";
 import { Card } from "../shared/card";
 import { EmptyState } from "../shared/empty-state";
 import { formatCurrency } from "../../lib/format";
+import type { WishlistResponse } from "../../types";
 
-export const WishlistItems = () => {
-  const { wishlist, isLoading, removeFromWishlist, moveToCart, isRemoving, isMoving } = useWishlist();
+type WishlistItemsProps = {
+  wishlist?: WishlistResponse;
+  isLoading: boolean;
+  removeFromWishlist: (id: number) => void;
+  moveToCart: (id: number) => void;
+  removingItemId: number | null;
+  movingItemId: number | null;
+};
 
+export const WishlistItems = ({
+  wishlist,
+  isLoading,
+  removeFromWishlist,
+  moveToCart,
+  removingItemId,
+  movingItemId,
+}: WishlistItemsProps) => {
   if (isLoading) {
     return <div className="text-slate-500">Loading wishlist...</div>;
   }
@@ -24,10 +38,7 @@ export const WishlistItems = () => {
   return (
     <div className="space-y-4">
       {wishlist.items.map((item) => (
-        <Card
-          key={item.id}
-          className="flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between"
-        >
+        <Card key={item.id} className="flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-4 flex-1">
             <img
               src={item.product.imageUrl}
@@ -52,21 +63,24 @@ export const WishlistItems = () => {
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
             <Button
               variant="soft"
               onClick={() => moveToCart(item.id)}
-              disabled={!item.product.isAvailable || isMoving}
+              disabled={!item.product.isAvailable || movingItemId === item.id || removingItemId === item.id}
+              className="w-full sm:w-auto"
             >
               <ShoppingCart className="h-4 w-4" />
-              Move to Cart
+              {movingItemId === item.id ? "Moving..." : "Move to Cart"}
             </Button>
             <Button
               variant="ghost"
               onClick={() => removeFromWishlist(item.id)}
-              disabled={isRemoving}
+              disabled={movingItemId === item.id || removingItemId === item.id}
+              className="w-full sm:w-auto"
             >
               <Trash2 className="h-4 w-4" />
+              {removingItemId === item.id ? "Removing..." : "Remove"}
             </Button>
           </div>
         </Card>

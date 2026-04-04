@@ -113,6 +113,7 @@ export type Order = {
   status: string;
   subtotal: number;
   shippingFee: number;
+  discountAmount: number;
   totalAmount: number;
   shippingAddress: string;
   createdAt: string;
@@ -152,6 +153,39 @@ export type Order = {
     updatedAt: string;
     refundedAt: string | null;
   } | null;
+  coupon: {
+    couponId: number;
+    couponCode: string;
+    discountType: "PERCENTAGE" | "FIXED_AMOUNT";
+    discountValue: number;
+  } | null;
+};
+
+export type Coupon = {
+  couponId: number;
+  couponCode: string;
+  discountType: "PERCENTAGE" | "FIXED_AMOUNT";
+  discountValue: number;
+  validFrom: string;
+  validTo: string;
+  usageLimit: number;
+  usedCount: number;
+  remainingUsage: number;
+  minimumOrderAmount: number | null;
+  applicableProductIds: number[];
+  applicableCategoryIds: number[];
+  status: boolean;
+  isExpired: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CouponApplySummary = {
+  subtotal: number;
+  shippingFee: number;
+  discountAmount: number;
+  totalAmount: number;
+  eligibleSubtotal: number;
 };
 
 export type PaymentRecord = {
@@ -186,5 +220,48 @@ export type RazorpayCheckoutPayload = {
     razorpayOrderId: string;
     amount: number;
     currency: string;
+  };
+};
+
+export type Review = {
+  reviewId: number;
+  productId: number;
+  customerId: number;
+  rating: number;
+  reviewText: string;
+  status: boolean;
+  createdAt: string;
+  updatedAt: string;
+  customer: {
+    id: number;
+    fullName: string;
+    email: string;
+  } | null;
+  product: {
+    id: number;
+    name: string;
+    imageUrl: string;
+  } | null;
+};
+
+export type ProductReviewResponse = {
+  reviews: Review[];
+  summary: {
+    averageRating: number;
+    totalReviews: number;
+  };
+  myReview: Review | null;
+  permissions: {
+    canReview: boolean;
+    hasReviewed: boolean;
+  };
+};
+
+export type ModerationReviewResponse = {
+  reviews: Review[];
+  summary: {
+    total: number;
+    pendingCount: number;
+    approvedCount: number;
   };
 };

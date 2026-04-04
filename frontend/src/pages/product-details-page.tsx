@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { Button } from "../components/shared/button";
 import { Card } from "../components/shared/card";
 import { LoadingSkeleton } from "../components/shared/loading-skeleton";
+import { ReviewSection } from "../components/reviews/review-section";
 import { formatCurrency } from "../lib/format";
 import { useAuth } from "../hooks/use-auth";
 import { cartService } from "../services/cart";
@@ -96,6 +97,7 @@ export const ProductDetailsPage = () => {
           </div>
         </Card>
       </div>
+      <ReviewSection productId={product.id} />
     </main>
   );
 };

@@ -41,6 +41,11 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
 model User {
   id           Int        @id @default(autoincrement())
   fullName     String     @map("full_name")
@@ -53,6 +58,7 @@ model User {
   updatedAt    DateTime   @updatedAt @map("updated_at")
   cartItems    CartItem[]
   orders       Order[]
+  reviews      Review[]
   wishlist     Wishlist[]
 
   @@map("users")
@@ -88,11 +94,31 @@ model Product {
   category    Category      @relation(fields: [categoryId], references: [categoryId])
   cartItems   CartItem[]
   orderItems  OrderItem[]
+  reviews     Review[]
   wishlist    Wishlist[]
 
   @@index([categoryId], map: "idx_products_category_id")
   @@index([status], map: "idx_products_status")
   @@map("products")
+}
+
+model Review {
+  reviewId    Int      @id @default(autoincrement()) @map("review_id")
+  productId   Int      @map("product_id")
+  customerId  Int      @map("customer_id")
+  rating      Int
+  reviewText  String   @db.VarChar(1000) @map("review_text")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  status      Boolean  @default(false)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customer    User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, customerId], map: "review_product_customer_unique")
+  @@index([productId], map: "idx_reviews_product_id")
+  @@index([customerId], map: "idx_reviews_customer_id")
+  @@index([status], map: "idx_reviews_status")
+  @@map("reviews")
 }
 
 model CartItem {
@@ -116,18 +142,43 @@ model Order {
   status          OrderStatus  @default(PENDING)
   subtotal        Decimal      @db.Decimal(10, 2)
   shippingFee     Decimal      @db.Decimal(10, 2) @map("shipping_fee")
+  discountAmount  Decimal      @default(0) @db.Decimal(10, 2) @map("discount_amount")
   totalAmount     Decimal      @db.Decimal(10, 2) @map("total_amount")
   shippingAddress String       @db.VarChar(255) @map("shipping_address")
   createdAt       DateTime     @default(now()) @map("created_at")
   updatedAt       DateTime     @updatedAt @map("updated_at")
   userId          Int          @map("user_id")
+  couponId        Int?         @map("coupon_id")
   user            User         @relation(fields: [userId], references: [id])
+  coupon          Coupon?      @relation(fields: [couponId], references: [couponId])
   orderItems      OrderItem[]
   payment         Payment?
   shipping        Shipping?
 
   @@index([userId], map: "idx_orders_user_id")
+  @@index([couponId], map: "idx_orders_coupon_id")
   @@map("orders")
+}
+
+model Coupon {
+  couponId             Int          @id @default(autoincrement()) @map("coupon_id")
+  couponCode           String       @unique @db.VarChar(50) @map("coupon_code")
+  discountType         DiscountType @map("discount_type")
+  discountValue        Decimal      @db.Decimal(10, 2) @map("discount_value")
+  validFrom            DateTime     @map("valid_from")
+  validTo              DateTime     @map("valid_to")
+  usageLimit           Int          @map("usage_limit")
+  minimumOrderAmount   Decimal?     @db.Decimal(10, 2) @map("minimum_order_amount")
+  applicableProductIds Json?        @map("applicable_product_ids")
+  applicableCategoryIds Json?       @map("applicable_category_ids")
+  status               Boolean      @default(true)
+  createdAt            DateTime     @default(now()) @map("created_at")
+  updatedAt            DateTime     @updatedAt @map("updated_at")
+  orders               Order[]
+
+  @@index([status], map: "idx_coupons_status")
+  @@index([validFrom, validTo], map: "idx_coupons_validity")
+  @@map("coupons")
 }
 
 model OrderItem {

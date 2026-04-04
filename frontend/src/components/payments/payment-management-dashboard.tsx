@@ -119,7 +119,7 @@ export const PaymentManagementDashboard = ({
                 <div className="rounded-[28px] bg-brand-50/70 p-5">
                   <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.24em] text-brand-700">
                     <Receipt className="h-4 w-4" />
-                    Assignment Payment Details
+                    Transaction Details
                   </div>
                   <div className="mt-4 grid gap-3 text-sm text-slate-600">
                     <div className="flex justify-between gap-4">

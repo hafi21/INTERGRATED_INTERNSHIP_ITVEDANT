@@ -3,7 +3,14 @@ import { WishlistItems } from "../components/wishlist/wishlist-items";
 import { useWishlist } from "../services/wishlist";
 
 export const WishlistPage = () => {
-  const { wishlist, isLoading } = useWishlist();
+  const {
+    wishlist,
+    isLoading,
+    removeFromWishlist,
+    moveToCart,
+    removingItemId,
+    movingItemId,
+  } = useWishlist();
 
   return (
     <main className="section-shell py-14">
@@ -31,7 +38,14 @@ export const WishlistPage = () => {
               )}
             </p>
           </div>
-          <WishlistItems />
+          <WishlistItems
+            wishlist={wishlist}
+            isLoading={isLoading}
+            removeFromWishlist={removeFromWishlist}
+            moveToCart={moveToCart}
+            removingItemId={removingItemId}
+            movingItemId={movingItemId}
+          />
         </div>
       )}
     </main>

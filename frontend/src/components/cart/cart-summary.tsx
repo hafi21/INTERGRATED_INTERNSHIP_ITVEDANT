@@ -5,15 +5,21 @@ import { formatCurrency } from "../../lib/format";
 
 export const CartSummary = ({
   subtotal,
+  shippingOverride,
+  discountAmount = 0,
+  couponCode,
   onCheckout,
   loading,
 }: {
   subtotal: number;
+  shippingOverride?: number;
+  discountAmount?: number;
+  couponCode?: string | null;
   onCheckout: () => void;
   loading: boolean;
 }) => {
-  const shipping = subtotal >= 500 ? 0 : 25;
-  const total = subtotal + shipping;
+  const shipping = shippingOverride ?? (subtotal >= 500 ? 0 : 25);
+  const total = Math.max(subtotal + shipping - discountAmount, 0);
 
   return (
     <Card className="sticky top-28 space-y-5">
@@ -33,6 +39,12 @@ export const CartSummary = ({
           </span>
           <span className="font-medium text-ink">{shipping === 0 ? "Free" : formatCurrency(shipping)}</span>
         </div>
+        {discountAmount > 0 ? (
+          <div className="flex justify-between">
+            <span>Discount{couponCode ? ` (${couponCode})` : ""}</span>
+            <span className="font-medium text-emerald-600">- {formatCurrency(discountAmount)}</span>
+          </div>
+        ) : null}
         <div className="border-t border-slate-200 pt-3">
           <div className="flex justify-between text-base font-semibold text-ink">
             <span>Total</span>
@@ -47,4 +59,3 @@ export const CartSummary = ({
     </Card>
   );
 };
-

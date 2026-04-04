@@ -36,33 +36,35 @@ export const Navbar = () => {
   }, []);
 
   const adminLinks = [
+    { to: "/admin/coupons", label: "Coupons" },
     { to: "/admin/payments", label: "Payments" },
     { to: "/admin/orders", label: "Order Admin" },
     { to: "/admin/customers", label: "Customers" },
     { to: "/admin/categories", label: "Categories" },
     { to: "/admin/products", label: "Products" },
+    { to: "/admin/reviews", label: "Reviews" },
   ];
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/60 bg-white/65 backdrop-blur-xl">
-      <div className="section-shell flex items-center justify-between gap-4 py-4">
-        <Link to="/" className="flex items-center gap-3 text-ink">
-          <span className="rounded-2xl bg-brand-600 p-3 text-white shadow-glow">
-            <ShoppingBag className="h-5 w-5" />
+      <div className="mx-auto flex w-full max-w-[1680px] items-center justify-between gap-6 px-4 py-5 sm:px-6 xl:px-10">
+        <Link to="/" className="flex items-center gap-4 text-ink">
+          <span className="rounded-2xl bg-brand-600 p-3.5 text-white shadow-glow">
+            <ShoppingBag className="h-6 w-6" />
           </span>
           <div>
-            <p className="text-lg font-semibold tracking-tight">Aureon Store</p>
-            <p className="text-xs text-slate-500">Shop tech, office, and desk essentials</p>
+            <p className="text-2xl font-semibold leading-none tracking-tight">Aureon Store</p>
+            <p className="mt-1 text-sm text-slate-500">Shop tech, office, and desk essentials</p>
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-2 rounded-full border border-white/70 bg-white/65 px-2 py-2 shadow-soft md:flex">
+        <nav className="mx-4 hidden flex-1 items-center justify-center gap-2 rounded-full border border-white/70 bg-white/65 px-4 py-2.5 shadow-soft md:flex">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `rounded-full px-4 py-2 text-sm font-medium transition ${
+                `rounded-full px-5 py-2.5 text-base font-medium transition ${
                   isActive ? "bg-brand-600 text-white" : "text-slate-600 hover:text-ink"
                 }`
               }
@@ -75,7 +77,7 @@ export const Navbar = () => {
               <button
                 type="button"
                 onClick={() => setAdminMenuOpen((current) => !current)}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-base font-medium transition ${
                   location.pathname.startsWith("/admin")
                     ? "bg-brand-600 text-white"
                     : "text-slate-600 hover:text-ink"
@@ -115,15 +117,15 @@ export const Navbar = () => {
         <div className="flex items-center gap-3">
           {user ? (
             <>
+              <Button variant="ghost" onClick={logout}>
+                Logout
+              </Button>
               <div className="hidden max-w-[240px] rounded-full border border-brand-100 bg-brand-50 px-4 py-2 text-sm text-brand-700 sm:flex">
                 <span className="flex items-center gap-2">
                   {user.role === "ADMIN" ? <ShieldCheck className="h-4 w-4" /> : null}
                   <span className="truncate font-medium">{accountLabel}</span>
                 </span>
               </div>
-              <Button variant="ghost" onClick={logout}>
-                Logout
-              </Button>
             </>
           ) : (
             <>

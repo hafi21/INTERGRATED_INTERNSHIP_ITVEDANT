@@ -13,7 +13,11 @@ export const orderService = {
     const { data } = await api.get<{ orders: Order[] }>("/orders", { params });
     return data.orders;
   },
-  async create(payload: { shippingAddress: string; paymentProvider: "RAZORPAY" | "COD" }) {
+  async create(payload: {
+    shippingAddress: string;
+    paymentProvider: "RAZORPAY" | "COD";
+    couponCode?: string;
+  }) {
     const { data } = await api.post<{ order: Order }>("/orders", payload);
     return data.order;
   },

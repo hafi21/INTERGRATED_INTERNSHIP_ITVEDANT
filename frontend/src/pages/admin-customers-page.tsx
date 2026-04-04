@@ -64,12 +64,12 @@ export const AdminCustomersPage = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (customerId: number) => customerService.deactivate(customerId),
-    onSuccess: () => {
+    onSuccess: (_data, customerId) => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       toast.success("Customer deactivated");
       setDeleteTarget(null);
       setSelectedCustomer((current) =>
-        current && deleteTarget && current.id === deleteTarget.id ? null : current,
+        current && current.id === customerId ? null : current,
       );
     },
     onError: (error: unknown) =>
@@ -79,9 +79,9 @@ export const AdminCustomersPage = () => {
   return (
     <main className="section-shell py-14">
       <SectionHeading
-        eyebrow="Part 4 Submission Module"
-        title="Admin customer management with contact details, account status, and order history"
-        description="This module completes customer management with admin-created customers, editable contact details, order history visibility, and soft account deactivation."
+        eyebrow="Customer Operations"
+        title="Customer management"
+        description="Create customer profiles, update account details, and control account access with safe deactivation."
       />
 
       <div className="mt-8 grid gap-4 md:grid-cols-4">

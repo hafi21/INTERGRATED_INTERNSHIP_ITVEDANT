@@ -6,6 +6,7 @@ type OrderEntity = {
   status: string;
   subtotal: unknown;
   shippingFee: unknown;
+  discountAmount: unknown;
   totalAmount: unknown;
   shippingAddress: string;
   createdAt: Date;
@@ -39,6 +40,12 @@ type OrderEntity = {
     updatedAt: Date;
     refundedAt: Date | null;
   } | null;
+  coupon?: {
+    couponId: number;
+    couponCode: string;
+    discountType: string;
+    discountValue: unknown;
+  } | null;
 };
 
 export const serializeOrder = (order: OrderEntity) => ({
@@ -47,6 +54,7 @@ export const serializeOrder = (order: OrderEntity) => ({
   status: order.status,
   subtotal: decimalToNumber(order.subtotal as number),
   shippingFee: decimalToNumber(order.shippingFee as number),
+  discountAmount: decimalToNumber(order.discountAmount as number),
   totalAmount: decimalToNumber(order.totalAmount as number),
   shippingAddress: order.shippingAddress,
   createdAt: order.createdAt,
@@ -70,6 +78,14 @@ export const serializeOrder = (order: OrderEntity) => ({
     ? {
         ...order.payment,
         amount: decimalToNumber(order.payment.amount as number),
+      }
+    : null,
+  coupon: order.coupon
+    ? {
+        couponId: order.coupon.couponId,
+        couponCode: order.coupon.couponCode,
+        discountType: order.coupon.discountType,
+        discountValue: decimalToNumber(order.coupon.discountValue as number),
       }
     : null,
 });

@@ -43,6 +43,12 @@ const AdminCategoriesPage = lazy(() =>
 const AdminProductsPage = lazy(() =>
   import("./pages/admin-products-page").then((module) => ({ default: module.AdminProductsPage })),
 );
+const AdminCouponsPage = lazy(() =>
+  import("./pages/admin-coupons-page").then((module) => ({ default: module.AdminCouponsPage })),
+);
+const AdminReviewsPage = lazy(() =>
+  import("./pages/admin-reviews-page").then((module) => ({ default: module.AdminReviewsPage })),
+);
 const NotFoundPage = lazy(() =>
   import("./pages/not-found-page").then((module) => ({ default: module.NotFoundPage })),
 );
@@ -202,6 +208,26 @@ export default function App() {
                 <ProtectedRoute adminOnly>
                   <PageTransition>
                     <AdminProductsPage />
+                  </PageTransition>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/coupons"
+              element={
+                <ProtectedRoute adminOnly>
+                  <PageTransition>
+                    <AdminCouponsPage />
+                  </PageTransition>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/reviews"
+              element={
+                <ProtectedRoute adminOnly>
+                  <PageTransition>
+                    <AdminReviewsPage />
                   </PageTransition>
                 </ProtectedRoute>
               }

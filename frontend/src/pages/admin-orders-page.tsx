@@ -73,9 +73,9 @@ export const AdminOrdersPage = () => {
   return (
     <main className="section-shell py-14">
       <SectionHeading
-        eyebrow="Part 3 Submission Module"
-        title="Admin order management with status filters and order actions"
-        description="This dashboard completes the order management assignment with all-customer order visibility, status-based filtering, shipped and delivered updates, and soft cancellation support."
+        eyebrow="Order Operations"
+        title="Order management"
+        description="Track every customer order, apply status updates, and handle cancellations from a single control panel."
       />
 
       <div className="mt-8 grid gap-4 md:grid-cols-5">

@@ -60,9 +60,9 @@ export const AdminPaymentsPage = () => {
   return (
     <main className="section-shell py-14">
       <SectionHeading
-        eyebrow="Part 6 Submission Module"
-        title="Admin payment dashboard with Razorpay transaction history and refunds"
-        description="This completes the payment management assignment using the existing Razorpay integration, an admin transaction dashboard, and refund tracking for completed payments."
+        eyebrow="Payment Operations"
+        title="Payment management"
+        description="Review transaction history, monitor payment status, and process refunds while keeping Razorpay as the primary gateway."
       />
 
       <div className="mt-8 grid gap-4 md:grid-cols-5">
